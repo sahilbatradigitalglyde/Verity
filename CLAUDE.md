@@ -28,10 +28,6 @@ The visual table must show the same heights and < 0.02% difference, except the i
 - Schema changes need an Alembic migration: `alembic revision --autogenerate -m "..."`.
 - Windows-friendly code: no `%-d` in strftime, use `pathlib`.
 
-## File and migration hygiene
-- Keep files UTF-8 without BOM and never replace typographic quotes (’ “ ”) in UI text.
-- Never edit a migration that has already been applied; always add a new one.
-
 ## Frontend rules
 - TypeScript strict; no `any` unless unavoidable.
 - Server data through `src/api/client.ts` (and TanStack Query from phase 2); UI-only state in the Zustand store.
@@ -41,3 +37,5 @@ The visual table must show the same heights and < 0.02% difference, except the i
 - One screen or feature per branch and PR, matching the task numbers in `PLAN.md`. Tick the box when done.
 - Update `docs/05_API.md` when endpoints change, and `DECISIONS.md` for any new decision.
 - Ask before changing the workflow states, the score formula or anything visible that the prototype does not show.
+
+
