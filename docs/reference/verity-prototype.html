@@ -1,0 +1,1511 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verity Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#F5F6F8;--sf:#FFFFFF;--sf2:#F0F1F4;--bd:#E2E4E9;--bd2:#CDD1D9;--tx:#111827;--mu:#596170;--ac:#3730A3;--acf:#3730A3;--acs:#EEF0FF;--on:#FFFFFF;--ps:#047857;--psb:#E6F5EE;--fl:#B42318;--flb:#FDECEA;--bk:#9A5B06;--bkb:#FEF4E2;--nr:#4B5563;--nrb:#EEF0F3;color-scheme:light}
+:root[data-theme="dark"]{--bg:#0E1016;--sf:#161922;--sf2:#1D212C;--bd:#2A2F3B;--bd2:#3A4050;--tx:#E8EAF0;--mu:#9AA3B2;--ac:#A5A8FF;--acf:#5B5BD6;--acs:#23254A;--on:#FFFFFF;--ps:#4ADE9B;--psb:#0F2F23;--fl:#FF8A80;--flb:#3A1714;--bk:#F7C266;--bkb:#36270C;--nr:#B4BAC6;--nrb:#252A35;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:14px;background:var(--bg);color:var(--tx)}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--ac)}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace}
+.muted{color:var(--mu)}
+.sm{font-size:12px}.s13{font-size:13px}
+.b{font-weight:600}
+.ell{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.col{display:flex;flex-direction:column;gap:16px}
+.sp{flex:1 1 0}
+h1{margin:0;font-size:26px;font-weight:600;letter-spacing:-.01em}
+h2{margin:0;font-size:18px;font-weight:600}
+h3{margin:0;font-size:16px;font-weight:600}
+p{margin:0}
+/* header */
+.hdr{display:flex;flex-wrap:wrap;align-items:center;gap:16px 20px;padding:10px 28px;min-height:60px;background:var(--sf);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:20}
+.logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:17px;text-decoration:none;color:var(--tx)}
+.logo i{width:28px;height:28px;border-radius:7px;background:var(--acf);display:grid;place-items:center;color:#fff}
+.nav{display:flex;gap:4px;flex-wrap:wrap}
+.nav a{padding:8px 12px;border-radius:8px;color:var(--mu);text-decoration:none;font-weight:500}
+.nav a.on{background:var(--acs);color:var(--ac)}
+.who{display:flex;align-items:center;gap:10px}
+.who .n{display:flex;flex-direction:column;line-height:1.2}
+.av{width:32px;height:32px;border-radius:999px;display:inline-grid;place-items:center;font-size:12px;font-weight:700;flex:none}
+.av.s{width:24px;height:24px;font-size:10px}
+.av-DO{background:#E0E7FF;color:#3730A3}.av-PS{background:#FCE7F3;color:#9D174D}.av-SP{background:#DCFCE7;color:#166534}.av-AI,.av-VY{background:var(--acf);color:#fff}.av-x{background:var(--sf2);color:var(--tx);border:1px solid var(--bd)}
+/* buttons */
+.btn{height:38px;padding:0 14px;border-radius:8px;border:1px solid var(--bd2);background:var(--sf);color:var(--tx);font-weight:500;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;text-decoration:none;white-space:nowrap}
+.btn:hover{background:var(--sf2)}
+.btn.pri{background:var(--acf);border-color:var(--acf);color:#fff;font-weight:600}
+.btn.pri:hover{filter:brightness(1.12)}
+.btn.warn{color:var(--bk);border-color:var(--bk)}
+.btn.on{background:var(--acs);border-color:var(--acf);color:var(--ac);font-weight:600}
+.btn.sm{height:32px;padding:0 10px;font-size:13px}
+.btn.lg{height:44px;padding:0 18px;font-size:15px}
+.btn:disabled,.btn[aria-disabled="true"]{opacity:.5;cursor:not-allowed;filter:none}
+.ib{width:32px;height:32px;border-radius:7px;border:1px solid transparent;background:transparent;color:var(--mu);display:inline-grid;place-items:center;cursor:pointer}
+.ib:hover{background:var(--sf2);border-color:var(--bd);color:var(--tx)}
+.ib:disabled{opacity:.35;cursor:not-allowed}
+.seg{display:inline-flex;gap:4px;padding:4px;border-radius:10px;background:var(--sf2);border:1px solid var(--bd)}
+.seg button,.seg a{height:32px;padding:0 12px;border-radius:7px;border:0;background:transparent;color:var(--mu);font-weight:500;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
+.seg .on{background:var(--sf);color:var(--tx);box-shadow:0 1px 2px rgba(0,0,0,.1)}
+/* surfaces */
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:14px}
+.pad{padding:20px}
+.sub{background:var(--sf);border-bottom:1px solid var(--bd)}
+.wrap{max-width:1376px;margin:0 auto;padding:24px 28px 120px}
+.sub .wrap{padding-bottom:18px}
+.crumb{font-size:13px;color:var(--mu);display:flex;gap:8px;flex-wrap:wrap}
+.crumb a{color:var(--mu);text-decoration:none}.crumb a:hover{color:var(--tx)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.kpi{padding:14px 16px;border:1px solid var(--bd);border-radius:10px;display:flex;flex-direction:column;gap:4px}
+.kpi b{font-size:22px;font-weight:600}
+.tabs{display:flex;gap:24px;flex-wrap:wrap}
+.tabs a{padding:12px 0;color:var(--mu);border-bottom:2px solid transparent;text-decoration:none;font-weight:500}
+.tabs a.on{color:var(--ac);border-color:var(--acf)}
+.cnt{margin-left:4px;padding:1px 7px;border-radius:999px;background:var(--acs);font-size:12px;color:var(--ac)}
+/* pills & tags */
+.pill{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.p-pass{background:var(--psb);color:var(--ps)}.p-fail{background:var(--flb);color:var(--fl)}.p-blk{background:var(--bkb);color:var(--bk)}.p-nr{background:var(--nrb);color:var(--nr)}.p-ac{background:var(--acs);color:var(--ac)}.p-acf{background:var(--acf);color:#fff}
+.p-out{border:1px solid var(--acf);color:var(--ac)}.p-gray{border:1px solid var(--bd2);color:var(--mu)}
+.dot{width:8px;height:8px;border-radius:999px;display:inline-block;flex:none}
+.tag{font-size:12px;font-weight:500;padding:2px 8px;border-radius:6px;border:1px solid var(--bd2);white-space:nowrap;display:inline-block}
+.tag.f{background:var(--sf2);border-color:var(--bd)}
+.tag.ok{background:var(--psb);border-color:transparent;color:var(--ps);font-weight:600}
+.tag.ed{background:var(--nrb);border-color:transparent;color:var(--nr);font-weight:600;font-size:11px}
+.prio{font-size:12px;font-weight:700;padding:2px 7px;border-radius:6px;justify-self:start;display:inline-block}
+.prio.P1{background:var(--tx);color:var(--sf)}.prio.P2{background:var(--sf2);color:var(--tx);border:1px solid var(--bd2)}.prio.P3{color:var(--mu);border:1px solid var(--bd)}
+.risk{font-size:12px;font-weight:600;padding:2px 8px;border-radius:6px;white-space:nowrap}
+.r-High{background:var(--flb);color:var(--fl)}.r-Medium{background:var(--bkb);color:var(--bk)}.r-Low{background:var(--nrb);color:var(--nr)}
+/* forms */
+.input{height:38px;padding:0 12px;border:1px solid var(--bd2);border-radius:8px;background:var(--sf);color:var(--tx);outline:none;min-width:0}
+.input:focus,textarea.input:focus{border-color:var(--acf);box-shadow:0 0 0 3px var(--acs)}
+textarea.input{height:auto;padding:10px 12px;line-height:1.5;resize:vertical;width:100%}
+select.input{padding-right:8px}
+label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500}
+.searchbox{display:flex;align-items:center;gap:8px;height:38px;padding:0 12px;border:1px solid var(--bd2);border-radius:8px;background:var(--sf);color:var(--mu)}
+.searchbox input{border:0;background:transparent;outline:none;width:100%;color:var(--tx)}
+input[type=checkbox]{accent-color:var(--acf);width:17px;height:17px;margin:0;cursor:pointer}
+/* tables */
+.scroll{overflow-x:auto}
+table.t{width:100%;border-collapse:collapse}
+.t th{font-size:12px;font-weight:600;color:var(--mu);text-align:left;padding:10px 14px;background:var(--sf2);border-bottom:1px solid var(--bd);white-space:nowrap}
+.t td{padding:13px 14px;border-bottom:1px solid var(--bd);vertical-align:middle}
+.t tr:last-child td{border-bottom:0}
+.t tr.click{cursor:pointer}.t tr.click:hover td{background:var(--sf2)}
+.t tr.sel td{background:var(--acs)}
+.bar{height:6px;border-radius:999px;background:var(--sf2);overflow:hidden;display:flex}
+/* stepper */
+.stepper{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;align-items:center;gap:8px 0}
+.stepper li{display:flex;align-items:center;font-size:13px;font-weight:500;color:var(--mu)}
+.stepper .d{width:24px;height:24px;border-radius:999px;display:inline-grid;place-items:center;font-size:12px;font-weight:600;border:1.5px solid var(--bd2);margin-right:8px}
+.stepper li.done,.stepper li.cur{color:var(--tx)}
+.stepper li.done .d{background:var(--acf);border-color:var(--acf);color:#fff}
+.stepper li.cur .d{background:var(--acs);border:2px solid var(--acf);color:var(--ac)}
+.stepper li.warn .d{background:var(--bkb);border:2px solid var(--bk);color:var(--bk)}
+.stepper .ln{width:30px;height:2px;margin:0 10px;background:var(--bd);border-radius:2px}
+.stepper li.done .ln{background:var(--acf)}
+/* layouts */
+.split{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start}
+.split>.main{flex:999 1 640px;min-width:0;display:flex;flex-direction:column;gap:16px}
+.split>.side{flex:1 1 320px;min-width:0;max-width:100%;display:flex;flex-direction:column;gap:16px}
+.banner{padding:12px 16px;border-radius:10px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;line-height:1.5}
+.b-ac{background:var(--acs);border:1px solid var(--acf)}.b-ok{background:var(--psb);border:1px solid var(--ps)}.b-warn{background:var(--bkb);border:1px solid var(--bk)}.b-gray{background:var(--sf2);border:1px solid var(--bd)}
+.empty{padding:48px 24px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.sec-h{padding:16px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid var(--bd);flex-wrap:wrap}
+.lbl{font-size:11px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+/* sign in */
+.signin{min-height:100vh;display:flex;flex-wrap:wrap}
+.signin .l{flex:1 1 520px;background:#3730A3;color:#fff;padding:56px 64px;display:flex;flex-direction:column;justify-content:space-between;gap:48px}
+.signin .r{flex:1 1 480px;display:flex;align-items:center;justify-content:center;padding:48px 24px}
+.ms{height:48px;border-radius:10px;border:1px solid var(--bd2);background:var(--sf);font-weight:600;font-size:15px;display:flex;align-items:center;justify-content:center;gap:12px;cursor:pointer;width:100%}
+.ms:hover{background:var(--sf2)}
+/* apps */
+.grid-apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:20px}
+.appcard{display:flex;flex-direction:column;gap:18px;padding:22px;border-radius:14px;background:var(--sf);border:1px solid var(--bd);text-decoration:none;color:var(--tx)}
+.appcard:hover{border-color:var(--acf)}
+.ini{width:40px;height:40px;flex:none;border-radius:10px;background:var(--acs);color:var(--ac);display:grid;place-items:center;font-size:15px;font-weight:700}
+/* PR */
+.pr{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden}
+.pr.sel{border-color:var(--acf)}
+.pr.dis{opacity:.6}
+.pr-h{display:flex;align-items:flex-start;gap:14px;padding:16px 18px}
+.ai-note{display:inline-flex;align-items:center;height:20px;padding:0 6px;border-radius:5px;background:var(--acs);color:var(--ac);font-size:11px;font-weight:600;flex:none}
+/* cases */
+.case{padding:14px 16px;border-top:1px solid var(--bd)}
+.case.ed{background:var(--acs)}
+.case-top{display:grid;grid-template-columns:56px minmax(0,1fr) 96px 40px 160px 150px 136px;gap:12px;align-items:center}
+.case-bot{display:grid;grid-template-columns:56px repeat(3,minmax(0,1fr));gap:12px;margin-top:10px;font-size:13px;line-height:1.5}
+.case-bot ol{margin:0;padding-left:18px}
+.chead{display:grid;grid-template-columns:56px minmax(0,1fr) 96px 40px 160px 150px 136px;gap:12px;padding:10px 16px;background:var(--sf2);font-size:12px;font-weight:600;color:var(--mu)}
+/* execution */
+.navlist button{width:100%;display:flex;align-items:center;gap:12px;padding:10px 16px;border:0;border-top:1px solid var(--bd);background:transparent;text-align:left;cursor:pointer;color:var(--tx)}
+.navlist button:hover{background:var(--sf2)}
+.navlist button.on{background:var(--acs);box-shadow:inset 3px 0 0 var(--acf)}
+.stepchk{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--bd);border-radius:10px;cursor:pointer}
+.stepchk.on{background:var(--sf2);color:var(--mu);text-decoration:line-through}
+.stbtn{height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;cursor:pointer;background:var(--sf);border:1px solid var(--bd2);color:var(--tx)}
+.stbtn:disabled{cursor:not-allowed;opacity:.6}
+.drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:22px;border:1.5px dashed var(--bd2);border-radius:10px;background:var(--sf2);text-align:center;cursor:pointer}
+.drop:hover{border-color:var(--acf)}
+.file{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--bd);border-radius:8px}
+.ft{width:36px;height:36px;border-radius:6px;background:var(--acs);color:var(--ac);font-size:10px;font-weight:700;display:grid;place-items:center;flex:none}
+.segbar{display:grid;gap:3px}
+.segbar span{height:8px;border-radius:3px}
+/* report */
+.ring{position:relative;width:148px;height:148px;flex:none}
+.ring .c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.finding{padding:18px 20px;display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;border-bottom:1px solid var(--bd)}
+.finding:last-child{border-bottom:0}
+.cmp{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;font-size:13px;line-height:1.5}
+.cmp>div{padding:10px 12px;border-radius:8px;background:var(--sf2)}
+/* overlays */
+.modal-bg{position:fixed;inset:0;background:rgba(17,24,39,.45);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+.modal{width:100%;max-width:580px;max-height:calc(100vh - 32px);overflow:auto;background:var(--sf);border:1px solid var(--bd);border-radius:16px;box-shadow:0 24px 48px rgba(0,0,0,.22)}
+.modal .mh{padding:20px 24px 12px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.modal .mb{padding:4px 24px 20px;display:flex;flex-direction:column;gap:14px}
+.modal .mf{padding:14px 24px;border-top:1px solid var(--bd);background:var(--sf2);display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+.repo{display:flex;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid var(--bd);cursor:pointer;width:100%;background:transparent;border-left:0;border-right:0;border-bottom:0;text-align:left;color:var(--tx)}
+.repo:first-child{border-top:0}
+.repo.on{background:var(--acs)}
+.repo:disabled{opacity:.55;cursor:not-allowed}
+.radio{width:18px;height:18px;border-radius:999px;border:2px solid var(--bd2);display:grid;place-items:center;flex:none}
+.repo.on .radio{border-color:var(--acf)}
+.repo.on .radio::after{content:"";width:8px;height:8px;border-radius:999px;background:var(--acf)}
+.drawer-bg{position:fixed;inset:0;background:rgba(17,24,39,.42);z-index:40}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:480px;max-width:100%;background:var(--sf);border-left:1px solid var(--bd);z-index:41;display:flex;flex-direction:column;box-shadow:-16px 0 40px rgba(0,0,0,.18)}
+.ev{display:flex;gap:14px}
+.ev .rail{flex:1;width:2px;min-height:12px;background:var(--bd);margin:4px 0}
+.chip{height:28px;padding:0 10px;border-radius:999px;border:1px solid var(--bd2);background:var(--sf);font-size:12px;font-weight:500;cursor:pointer}
+.chip.on{background:var(--acf);border-color:var(--acf);color:#fff;font-weight:600}
+.busy{position:fixed;inset:0;background:rgba(17,24,39,.5);display:grid;place-items:center;z-index:70;padding:16px}
+.busy .box{background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:28px;width:100%;max-width:440px;display:flex;flex-direction:column;gap:16px;box-shadow:0 24px 48px rgba(0,0,0,.25)}
+.spin{width:22px;height:22px;border-radius:999px;border:3px solid var(--acs);border-top-color:var(--acf);animation:sp .8s linear infinite;flex:none}
+@keyframes sp{to{transform:rotate(360deg)}}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:calc(100% - 32px);max-width:560px}
+.toast{background:var(--tx);color:var(--sf);padding:12px 16px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.25);display:flex;gap:14px;align-items:center;pointer-events:auto;line-height:1.45}
+.toast button{background:transparent;border:0;color:var(--sf);font-weight:700;text-decoration:underline;cursor:pointer}
+.guide{position:fixed;right:20px;bottom:20px;width:330px;z-index:30;background:var(--sf);border:1px solid var(--bd2);border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.16);overflow:hidden}
+.guide .gh{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--acf);color:#fff;cursor:pointer;border:0;width:100%;text-align:left}
+.guide ol{list-style:none;margin:0;padding:6px}
+.guide li button{width:100%;display:flex;gap:10px;align-items:flex-start;padding:8px;border:0;border-radius:8px;background:transparent;text-align:left;cursor:pointer;color:var(--tx);font-size:13px;line-height:1.4}
+.guide li button:hover:not(:disabled){background:var(--sf2)}
+.guide li button:disabled{cursor:default;opacity:.55}
+.guide li.cur button{background:var(--acs)}
+.guide .n{width:20px;height:20px;border-radius:999px;border:1.5px solid var(--bd2);display:grid;place-items:center;font-size:11px;font-weight:700;flex:none}
+.guide li.done .n{background:var(--ps);border-color:var(--ps);color:#fff}
+.guide li.cur .n{border-color:var(--acf);color:var(--ac)}
+.guide-min{position:fixed;right:20px;bottom:20px;z-index:30}
+.aiopt{display:flex;gap:14px;align-items:flex-start;padding:16px;border:1px solid var(--bd2);border-radius:12px;background:var(--sf);text-align:left;cursor:pointer;width:100%;color:var(--tx)}
+.aiopt:hover{border-color:var(--acf);background:var(--acs)}
+.aio-i{width:36px;height:36px;border-radius:9px;background:var(--acs);color:var(--ac);display:grid;place-items:center;flex:none}
+.hand{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:18px}
+.hand>li{display:flex;gap:14px;align-items:flex-start}
+.hn{width:26px;height:26px;border-radius:999px;background:var(--acf);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:700;flex:none}
+.prov{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--mu)}
+@media (max-width:760px){.hdr{padding:10px 16px}.wrap{padding:16px 16px 120px}.signin .l{padding:40px 24px}.guide{left:12px;right:12px;bottom:12px;width:auto}.cmp{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="overlay"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+'use strict';
+/* ---------- helpers ---------- */
+const $app = document.getElementById('app');
+const $ov = document.getElementById('overlay');
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const now = () => new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+const dayLabel = () => new Date().toLocaleDateString([], {weekday:'short', month:'short', day:'numeric', year:'numeric'});
+const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+const svg = (p, sw) => `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw||2}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+const I = {
+  check: svg('<path d="M4 12.5l5 5L20 6"/>', 2.6),
+  plus: svg('<path d="M12 5v14M5 12h14"/>', 2.2),
+  search: svg('<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>'),
+  chev: svg('<path d="M6 9l6 6 6-6"/>'),
+  close: svg('<path d="M6 6l12 12M18 6L6 18"/>'),
+  edit: svg('<path d="M4 20h4L19 9l-4-4L4 16v4z"/>'),
+  dup: svg('<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 00-1-1H5a1 1 0 00-1 1v10a1 1 0 001 1h3"/>'),
+  promote: svg('<path d="M12 19V6M6 11l6-6 6 6"/><path d="M5 21h14"/>'),
+  trash: svg('<path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/>'),
+  clock: svg('<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>'),
+  spark: svg('<path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/>'),
+  upload: svg('<path d="M12 16V4M7 9l5-5 5 5M5 20h14"/>'),
+  ext: svg('<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/>'),
+  sun: svg('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'),
+  moon: svg('<path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z"/>'),
+  shield: svg('<path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/>'),
+  refresh: svg('<path d="M20 11a8 8 0 10-2.3 5.7M20 5v6h-6"/>'),
+  list: svg('<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/>'),
+  copy: svg('<rect x="3" y="7" width="12" height="13" rx="2"/><path d="M9 3h10a2 2 0 012 2v10"/>'),
+  info: svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/>'),
+  cal: svg('<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>'),
+  map: svg('<path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/>'),
+  chat: svg('<path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z"/><path d="M8.5 11h7M8.5 14h4"/>'),
+  download: svg('<path d="M12 4v12M7 11l5 5 5-5M5 20h14"/>'),
+  cloud: svg('<path d="M7 18h10a4 4 0 00.5-8A6 6 0 006 9.5 4.3 4.3 0 007 18z"/>')
+};
+
+/* ---------- static data ---------- */
+const FLOW = ['Draft','Tests Generated','Assigned','In Testing','Submitted','AI Reviewed','Approved for UAT'];
+const WCLS = {'Draft':'p-nr','Tests Generated':'p-ac','Assigned':'p-ac','In Testing':'p-ac','Submitted':'p-ac','AI Reviewed':'p-acf','Approved for UAT':'p-pass','Changes Requested':'p-blk'};
+const RS = {pass:['Pass','p-pass','var(--ps)','var(--psb)'], fail:['Fail','p-fail','var(--fl)','var(--flb)'], blocked:['Blocked','p-blk','var(--bk)','var(--bkb)'], na:['Not Applicable','p-nr','var(--nr)','var(--nrb)']};
+const USERS = {
+  dev:{name:'Daniel Okafor', ini:'DO', role:'Senior Developer'},
+  tester:{name:'Priya Shah', ini:'PS', role:'Tester'},
+  admin:{name:'Sam Patel', ini:'SP', role:'Admin'},
+  ai:{name:'Verity AI', ini:'AI', role:''},
+  sys:{name:'Verity', ini:'VY', role:''}
+};
+const MODS = [
+  {id:'settle', name:'Refund settlement logic', risk:'High', desc:'New partial refund path changes how the settled balance is calculated. Touches the ledger table and migration.'},
+  {id:'valid', name:'Validation and guards', risk:'High', desc:'Amount limits, rounding to cents and the new closed-claim guard returning 409 CLAIM_CLOSED.'},
+  {id:'conc', name:'Concurrency', risk:'Medium', desc:'Settlement row is locked for update during a refund to stop two refunds racing.'},
+  {id:'bill', name:'Billing integration', risk:'Medium', desc:'RefundIssued event published to the billing queue. No commit notes on this change.'},
+  {id:'ui', name:'Settlement UI', risk:'Low', desc:'Refunded and Remaining rows added to the settlement summary and payment history.'}
+];
+const MODREG = {settle:'Settlement', valid:'Claim status', conc:'Settlement', bill:'Billing', ui:'Claim history'};
+const FILES = [
+  ['A','db/migrations/0147_partial_refund.sql',34,0],['M','src/Claims.Settlement/RefundService.cs',142,18],['A','src/Claims.Settlement/RefundLedger.cs',96,0],
+  ['M','src/Claims.Settlement/RefundValidator.cs',61,7],['A','src/Claims.Core/ClaimStatusGuard.cs',38,0],['M','src/Claims.Api/RefundController.cs',54,12],
+  ['A','src/Claims.Billing/RefundEventPublisher.cs',47,0],['M','src/Claims.Data/SettlementRepository.cs',22,4],['M','web/src/settlement/SettlementSummary.tsx',73,21],
+  ['M','web/src/claims/ClaimHistory.tsx',18,6],['M','web/src/settlement/settlement.css',12,2],['A','tests/Claims.Settlement.Tests/RefundServiceTests.cs',188,0],
+  ['A','tests/Claims.Settlement.Tests/RefundValidatorTests.cs',121,0],['M','src/Claims.Api/Permissions.cs',6,0],['M','src/Claims.Billing/BillingQueueClient.cs',9,3],
+  ['M','src/Claims.Core/Claim.cs',14,2],['M','src/Claims.Data/ClaimsDbContext.cs',11,0],['M','web/src/api/refunds.ts',44,0],['M','docs/refunds.md',30,0]
+];
+const PRS = [
+  {num:482, title:'Add partial refund support to claim settlement', author:'Marcus Lee', branch:'feature/partial-refunds', created:'Oct 26', items:['AB#1290','AB#1294'], commits:[
+    ['a3f91c2','Add PartialRefund entity and ledger table','Marcus Lee','Adds a partial_refund table keyed by claim_id. Settlement balance is now derived as settled amount minus the sum of refunds.',4],
+    ['7be04d1','Validate refund amount against settled balance','Anika Rao','Rejects amounts of zero or less and amounts above the remaining balance. Rounds to 2 decimal places.',3],
+    ['c19e8a7','Block refunds on closed or archived claims','Anika Rao','Adds ClaimStatusGuard. Returns 409 with code CLAIM_CLOSED.',2],
+    ['4d2f6b0','Publish RefundIssued event to billing queue','Marcus Lee','',3],
+    ['e88a13f','Settlement summary: show refunded and remaining amounts','Anika Rao','UI only. New Refunded and Remaining rows on SettlementSummary.',5],
+    ['91c0d5e','Add row lock to prevent concurrent refund race','Marcus Lee','Locks the settlement row for update inside the refund transaction.',2]]},
+  {num:490, title:'Claims search: filter by policy number', author:'Anika Rao', branch:'feature/search-policy-no', created:'Oct 29', items:['AB#1311'], commits:[
+    ['5b7a0e9','Add policy number to search index','Anika Rao','Adds policy_no to the claims search index and backfills existing rows.',3],
+    ['f02c4d1','Search UI: policy number filter chip','Anika Rao','New filter chip in ClaimsSearchBar. Accepts partial match of 4+ characters.',2],
+    ['8e1d3aa','Tests for policy number search','Anika Rao','',2]]},
+  {num:485, title:'Upgrade EF Core to 8.0.10', author:'Jordan Kim', branch:'chore/efcore-8010', created:'Oct 28', items:['AB#1302'], commits:[
+    ['c7d93b4','Bump EF Core packages to 8.0.10','Jordan Kim','Package bump only. No migration changes.',6],
+    ['2a6f8e0','Fix obsolete query API warnings','Jordan Kim','Replaces FromSql with FromSqlRaw in 3 repositories.',3]]},
+  {num:487, title:'Adjuster notes: support markdown', author:'Marcus Lee', branch:'feature/notes-markdown', created:'Oct 27', items:['AB#1297'], inCycle:true, commits:[]},
+  {num:479, title:'Fix date filter on claims search', author:'Anika Rao', branch:'fix/search-date-tz', created:'Oct 24', items:['AB#1281'], inCycle:true, commits:[]}
+];
+const TPL = [
+  ['TC-01','Partial refund less than settled amount succeeds','Functional','P1','RefundService.cs','diff','settle','Claim CLM-20931 settled at $1,200.00. User has Refund.Approve.',['Open claim CLM-20931','Click Issue refund, enter $200.00 and a reason','Submit'],'Refund saved. Remaining balance shows $1,000.00. Claim stays Settled.'],
+  ['TC-02','Refund exceeding settled amount is rejected','Negative','P1','RefundValidator.cs','diff','valid','Claim settled at $1,200.00 with no prior refunds.',['Click Issue refund','Enter $1,250.00','Submit'],'Inline error “Refund cannot exceed the remaining balance of $1,200.00”. Nothing saved.'],
+  ['TC-03','Refund on closed claim shows error','Negative','P1','ClaimStatusGuard.cs','notes','valid','Claim CLM-19877 has status Closed.',['Open the closed claim','Try Issue refund','Call POST /refunds directly'],'Issue refund is disabled with tooltip. API returns 409 CLAIM_CLOSED.'],
+  ['TC-04','Refund equal to remaining balance fully refunds the claim','Edge case','P1','RefundService.cs','diff','settle','Claim settled at $1,200.00.',['Issue refund of $1,200.00','Submit'],'Remaining shows $0.00. Status changes to Fully refunded.'],
+  ['TC-05','Cumulative partial refunds cannot exceed settled total','Edge case','P1','RefundLedger.cs','diff','settle','Claim settled at $1,200.00 with a prior refund of $900.00.',['Issue refund of $400.00','Submit'],'Rejected. Error shows remaining balance $300.00.'],
+  ['TC-06','Amount with more than 2 decimals is rounded to cents','Edge case','P2','RefundValidator.cs','notes','valid','Claim settled at $500.00.',['Enter 100.005','Submit'],'Saved as $100.01 and shown that way in the confirmation.'],
+  ['TC-07','Zero or negative refund amount is rejected','Negative','P2','RefundValidator.cs','diff','valid','Any settled claim.',['Enter 0 and submit','Enter −50 and submit'],'Both rejected with “Enter an amount greater than $0.00”.'],
+  ['TC-08','Refund reason is required and written to the audit log','Functional','P2','RefundController.cs','diff','settle','Settled claim. Audit log viewer access.',['Submit with an empty reason','Submit with a reason','Open the audit log'],'First is blocked. Second is saved with reason, user and time in the audit log.'],
+  ['TC-09','Settlement summary shows refunded and remaining amounts','Functional','P1','SettlementSummary.tsx','notes','ui','Claim with one $200.00 refund on $1,200.00.',['Open the claim settlement tab'],'Rows read Settled $1,200.00, Refunded $200.00, Remaining $1,000.00.'],
+  ['TC-10','User without Refund.Approve cannot issue a refund','Negative','P1','RefundController.cs','diff','valid','Signed in as an adjuster without Refund.Approve.',['Open a settled claim','Look for Issue refund','Call POST /refunds with the same token'],'Issue refund is hidden. API returns 403.'],
+  ['TC-11','RefundIssued event reaches the Billing Service queue','Functional','P2','RefundEventPublisher.cs','diff','bill','Billing queue reachable in the test environment.',['Issue a $50.00 refund','Inspect the billing-refunds queue'],'One RefundIssued message with claim ID, amount and refund ID.'],
+  ['TC-12','Concurrent refunds on the same claim are serialized','Edge case','P1','SettlementRepository.cs','notes','conc','Claim settled at $1,200.00. Two sessions open.',['Prepare $700.00 in both sessions','Submit both at the same time'],'One succeeds. The other is rejected for exceeding the remaining balance.'],
+  ['TC-13','Full settlement without refund still completes','Regression','P1','Settlement module','reg','settle','New claim ready for settlement. Linked to REG-118.',['Settle the claim for the full amount','Confirm no refund rows exist'],'Status Settled, payment sent, no refund rows created.'],
+  ['TC-14','Payment history lists refunds in date order','Regression','P3','ClaimHistory.tsx','reg','ui','Claim with a payment and two refunds. Linked to REG-207.',['Open the Payment history tab'],'Entries listed newest first with type labels Payment and Refund.']
+];
+const SAMPLE = {
+  'TC-01':['pass','Refund saved. Remaining $1,000.00. Status Settled.',['tc01-refund-saved.png']],
+  'TC-02':['pass','Error shown with $1,200.00. No refund row created.',['tc02-inline-error.png']],
+  'TC-03':['pass','Disabled with tooltip. API returned 409 CLAIM_CLOSED.',['tc03-disabled.png','tc03-api-409.log']],
+  'TC-04':['pass','Remaining $0.00, status Fully refunded.',['tc04-fully-refunded.png']],
+  'TC-05':['pass','Rejected as expected.',[]],
+  'TC-06':['fail','Saved as $100.00. Value is truncated, not rounded.',['tc06-confirmation-100.00.png','refund-api.log'],'AB#1318'],
+  'TC-07':['pass','Both rejected with the expected message.',['tc07-zero.png']],
+  'TC-08':['pass','Blocked, then saved. Audit entry present with reason.',['tc08-audit.png']],
+  'TC-09':['pass','Rows correct after reload. Remaining showed $0.00 for a moment first.',['tc09-summary.png']],
+  'TC-10':['pass','Issue refund button is not shown. API call returned 403 Forbidden.',['tc10-no-button.png']],
+  'TC-11':['blocked','billing-refunds queue not reachable from the QA environment.',[]],
+  'TC-12':['pass','First request succeeded, second rejected with remaining $500.00.',['tc12-concurrency.log']],
+  'TC-13':['pass','Settled and paid. No refund rows.',['tc13-settled.png']],
+  'TC-14':['pass','Newest first, labels correct.',['tc14-history.png']]
+};
+const SUGG = [
+  {reg:'REG-142', title:'Settlement totals recalculate after an adjustment', reason:'Uses the settled balance calculation changed in a3f91c2.', last:'Oct 21 · Pass', mod:'settle', pri:'P1', pre:'Settled claim with one adjustment.', steps:['Add a $100.00 adjustment','Open the settlement summary'], exp:'Totals include the adjustment and remaining balance is correct.'},
+  {reg:'REG-163', title:'Billing events retry after a queue outage', reason:'RefundEventPublisher uses the same BillingQueueClient.', last:'Oct 14 · Pass', mod:'bill', pri:'P2', pre:'Billing queue can be paused in the test environment.', steps:['Pause the queue','Issue a refund','Resume the queue'], exp:'Event is delivered once after the queue resumes.'},
+  {reg:'REG-201', title:'Closed claims are read-only for adjusters', reason:'ClaimStatusGuard adds a new closed-claim check on the same status.', last:'Oct 27 · Pass', mod:'valid', pri:'P1', pre:'Closed claim.', steps:['Open the claim as an adjuster','Try to edit any field'], exp:'All fields are read-only.'}
+];
+const AIX = {
+  'TC-06':'Commit 7be04d1 says amounts round to 2 decimal places, so this is a real defect, not a test error. Impact is limited to amounts below one cent. Approving is reasonable if the client is told it is a known issue.',
+  'TC-11':'This is the only case covering the billing event, and commit 4d2f6b0 has no AI notes. Billing could miss refunds without anyone noticing. Verify in staging before UAT or accept the risk explicitly.'
+};
+const STATIC_CYCLES = [
+  ['Fix date filter on claims search','2 commits · 8 test cases','In Testing','PR #479','Anika Rao','Tomás Rivera',5,0,0,8,null,'2 h ago'],
+  ['Adjuster notes: support markdown','4 commits · 11 test cases','Tests Generated','PR #487','Marcus Lee','Unassigned',0,0,0,11,null,'Yesterday'],
+  ['Release 2026.10.2','5 PRs · 38 test cases','Changes Requested','Release','Daniel Okafor','Priya Shah',27,3,1,38,64,'Oct 28'],
+  ['Claim attachments: show virus scan status','3 commits · 9 test cases','Approved for UAT','PR #471','Anika Rao','Tomás Rivera',9,0,0,9,91,'Oct 27'],
+  ['Claims export: CSV format v2','5 commits · 12 test cases','Approved for UAT','PR #468','Jordan Kim','Priya Shah',12,0,0,12,88,'Oct 21']
+];
+const ADO = {
+  'contoso-health':{
+    Claims:[['claims-intake-service','Updated 2 days ago','main'],['claims-portal-web','Updated 3 hours ago','main'],['adjuster-workbench','Updated yesterday','main'],['claims-rules-engine','Updated 6 days ago','develop'],['claims-docs-ocr','Updated 3 weeks ago','main']],
+    Member:[['member-mobile-api','Updated today','main'],['eligibility-engine','Updated 4 days ago','main'],['member-preferences-svc','Updated 2 weeks ago','main']],
+    Finance:[['billing-service','Updated today','main'],['payments-gateway','Updated 5 days ago','main'],['ledger-sync','Updated a month ago','main']],
+    Provider:[['provider-directory','Updated 3 days ago','main'],['credentialing-api','Updated 9 days ago','develop']]
+  },
+  'contoso-labs':{Prototypes:[['claims-chatbot-poc','Updated 2 weeks ago','main'],['ocr-experiments','Updated a month ago','main']]}
+};
+
+/* ---------- state ---------- */
+const S = {
+  signedIn:false, role:'dev', theme:'light', guideOpen:false, sawAudit:false, addedApp:false,
+  apps:[
+    {id:'claims', name:'Claims Portal', ini:'CP', path:'contoso-health / Claims / claims-portal-web', open:3, reg:214, last:'Oct 27, 2026', rate:94},
+    {id:'member-api', name:'Member Mobile API', ini:'MM', path:'contoso-health / Member / member-mobile-api', open:2, reg:168, last:'Oct 22, 2026', rate:91, tag:['In testing','p-nr']},
+    {id:'billing', name:'Billing Service', ini:'BS', path:'contoso-health / Finance / billing-service', open:1, reg:302, last:'Oct 29, 2026', rate:97, tag:['In testing','p-nr']},
+    {id:'elig', name:'Eligibility Engine', ini:'EE', path:'contoso-health / Member / eligibility-engine', open:4, reg:251, last:'Oct 20, 2026', rate:86, tag:['2 cycles blocked','p-blk']},
+    {id:'adj', name:'Adjuster Workbench', ini:'AW', path:'contoso-health / Claims / adjuster-workbench', open:1, reg:143, last:'Oct 9, 2026', rate:92, tag:['In testing','p-nr']},
+    {id:'prov', name:'Provider Directory', ini:'PD', path:'contoso-health / Provider / provider-directory', open:0, reg:88, last:'Oct 14, 2026', rate:89, tag:['No open cycles','p-nr']}
+  ],
+  appFilter:'All',
+  sel:{}, openPR:{482:true},
+  cycle:null, runIdx:0,
+  suggestionsOn:false, suggAdded:{},
+  regression:[
+    ['REG-118','Full settlement without refund completes','Settlement','P1','Oct 27','Pass','PPPPPPPPPP','PR #402','REG-131'],
+    ['REG-131','Settle claim end to end for full amount','Settlement','P1','Oct 27','Pass','NNNPPPPPPP','Release 2026.09.1','REG-118'],
+    ['REG-142','Settlement totals recalculate after an adjustment','Settlement','P1','Oct 21','Pass','PPPFPPPPPP','PR #377',''],
+    ['REG-163','Billing events retry after a queue outage','Billing','P2','Oct 14','Pass','PPBPPBPPPP','PR #351',''],
+    ['REG-170','Settlement letter shows correct payee','Settlement','P2','Oct 27','Pass','PPPPPPPPPP','PR #355',''],
+    ['REG-188','Overpayment recovery creates a receivable','Billing','P1','Oct 27','Fail','PPPPPPPPFF','PR #389',''],
+    ['REG-201','Closed claims are read-only for adjusters','Claim status','P1','Oct 27','Pass','PPPPPPPPPP','PR #410','REG-209'],
+    ['REG-207','Payment history lists entries in date order','Claim history','P3','Oct 27','Pass','PPPPPPPPPP','PR #418',''],
+    ['REG-209','Adjuster cannot edit a closed claim','Claim status','P2','Oct 9','Pass','NNNNNNPPPP','PR #431','REG-201'],
+    ['REG-212','Settlement export includes adjustments','Settlement','P3','Sep 30','Not run','PPPPPPPNNN','PR #440',''],
+    ['REG-213','Billing reconciliation report balances to zero','Billing','P2','Oct 27','Blocked','PPPPPPPPPB','PR #451',''],
+    ['REG-214','Claim payment reversal posts to ledger','Settlement','P1','Oct 27','Pass','PPPPPPPPPP','PR #468','']
+  ].map(r => ({id:r[0], title:r[1], mod:r[2], pri:r[3], last:r[4], res:r[5], hist:r[6], src:r[7], dup:r[8], tags:[]})),
+  regSel:{}, regQ:'', regMod:'All', regRes:'All', regTotal:214, regNext:215,
+  audit:[], auditFilter:'All',
+  aiMode:{gen:'ask', regen:'ask', validate:'ask', bug:'ask', dups:'ask'}, runSeq:1, dupRun:null,
+  modal:null, drawer:false, busy:null, queueTab:'Open', bugSeq:1318, lastDel:null
+};
+PRS[0].commits.forEach(c => { S.sel[c[0]] = true; });
+try { const t = localStorage.getItem('verity-theme'); S.theme = t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (e) {}
+
+/* ---------- core ---------- */
+function applyTheme(){ document.documentElement.setAttribute('data-theme', S.theme); try { localStorage.setItem('verity-theme', S.theme); } catch (e) {} }
+function route(){ const h = location.hash.replace(/^#\/?/, ''); return h ? h.split('/') : [S.signedIn ? home() : 'signin']; }
+function go(h){ if (location.hash === '#/' + h) render(); else location.hash = '#/' + h; }
+function home(){ return S.role === 'tester' ? 'queue' : 'apps'; }
+function log(who, what, detail, tag, tagCls, cat){ S.audit.push({who, what, detail:detail||'', tag:tag||'', tagCls:tagCls||'p-ac', cat:cat||'Workflow', time:now(), day:dayLabel()}); }
+function toast(msg, actLabel, actKey){
+  const el = document.createElement('div'); el.className = 'toast';
+  el.innerHTML = `<span>${esc(msg)}</span>` + (actLabel ? `<button type="button" data-act="toast-act" data-k="${actKey}">${esc(actLabel)}</button>` : '');
+  const box = document.getElementById('toast');
+  while (box.children.length >= 2) box.firstChild.remove();
+  box.appendChild(el);
+  setTimeout(() => el.remove(), actLabel ? 6000 : 3800);
+}
+function setStatus(st){ S.cycle.status = st; }
+function locked(){ return S.cycle && ['Submitted','AI Reviewed','Approved for UAT'].includes(S.cycle.status); }
+function nextCaseId(){ const n = Math.max(0, ...S.cycle.cases.map(c => parseInt(c.id.slice(3), 10))) + 1; return 'TC-' + String(n).padStart(2, '0'); }
+function newResult(){ return {status:'', actual:'', notes:'', bug:'', ev:[], chk:[]}; }
+
+function render(){
+  applyTheme();
+  const a = document.activeElement; const fid = a && a.id; let ss = null, se = null;
+  try { if (fid && a.selectionStart != null) { ss = a.selectionStart; se = a.selectionEnd; } } catch (e) {}
+  const r = route();
+  if (!S.signedIn && r[0] !== 'signin') { location.hash = '#/signin'; return; }
+  let html = '';
+  if (r[0] === 'signin') html = vSignin();
+  else if (r[0] === 'apps') html = shell(vApps());
+  else if (r[0] === 'app') html = shell(vAppDetail(r[1] || 'claims', r[2] || 'cycles'));
+  else if (r[0] === 'cycle' && r[1] === 'new') html = shell(vNewCycle());
+  else if (r[0] === 'cycle' && r[2] === 'review') html = shell(vReview());
+  else if (r[0] === 'cycle' && r[2] === 'run') html = shell(vRun());
+  else if (r[0] === 'cycle' && r[2] === 'report') html = shell(vReport());
+  else if (r[0] === 'queue') html = shell(vQueue());
+  else html = shell(`<div class="wrap">${empty('Page not found', 'Use the navigation above.')}</div>`);
+  $app.innerHTML = html;
+  renderOverlay();
+  if (fid) { const el = document.getElementById(fid); if (el) { el.focus(); try { if (ss != null) el.setSelectionRange(ss, se); } catch (e) {} } }
+}
+function renderOverlay(){
+  let h = '';
+  if (S.signedIn && route()[0] !== 'signin') h += vGuide();
+  if (S.drawer) h += vDrawer();
+  if (S.modal) h += vModal();
+  if (S.busy) h += vBusy();
+  $ov.innerHTML = h;
+}
+
+/* ---------- shared UI ---------- */
+function empty(t, d, btn){ return `<div class="card empty"><h3>${t}</h3><p class="muted" style="max-width:460px;line-height:1.5">${d}</p>${btn||''}</div>`; }
+function wpill(s){ return `<span class="pill ${WCLS[s]}">${s}</span>`; }
+function srcBadge(s){ return ({diff:'<span class="pill p-ac">From diff</span>', notes:'<span class="pill p-out">From commit notes</span>', reg:'<span class="pill p-nr">From regression suite</span>', manual:'<span class="pill p-gray">Added manually</span>'})[s]; }
+function avatar(k, small){ const u = USERS[k]; return `<span class="av ${small?'s':''} av-${u.ini}" aria-hidden="true">${u.ini}</span>`; }
+function stepper(st){
+  let cur = FLOW.indexOf(st), warn = false;
+  if (st === 'Changes Requested') { cur = 3; warn = true; }
+  if (st === 'Approved for UAT') cur = 7;
+  return `<ol class="stepper" aria-label="Cycle workflow">${FLOW.map((l, i) => {
+    const cls = i < cur ? 'done' : i === cur ? ('cur' + (warn ? ' warn' : '')) : '';
+    return `<li class="${cls}" ${i === cur ? 'aria-current="step"' : ''}><span class="d">${i < cur ? '✓' : (warn && i === cur ? '!' : i + 1)}</span>${warn && i === cur ? 'Changes Requested' : l}${i < FLOW.length - 1 ? '<span class="ln"></span>' : ''}</li>`;
+  }).join('')}</ol>`;
+}
+function shell(content){
+  const navs = S.role === 'tester' ? [['My queue','queue']] : [['Apps','apps'],['Regression','app/claims/regression']];
+  const r = route().join('/');
+  const u = USERS[S.role];
+  return `<header class="hdr">
+    <a class="logo" href="#/${home()}"><i>${I.check}</i>Verity</a>
+    <nav class="nav" aria-label="Main">${navs.map(n => `<a href="#/${n[1]}" class="${(r === n[1] || (n[1] === 'apps' && (r.startsWith('app/') && !r.endsWith('regression') || r.startsWith('cycle')))) ? 'on' : ''}">${n[0]}</a>`).join('')}</nav>
+    <div class="sp"></div>
+    <label class="row s13 muted" style="gap:8px">Viewing as
+      <select class="input" data-change="role" aria-label="Switch role" style="height:34px">
+        ${['dev','tester','admin'].map(k => `<option value="${k}" ${S.role === k ? 'selected' : ''}>${USERS[k].name} · ${USERS[k].role}</option>`).join('')}
+      </select></label>
+    <button class="ib" type="button" data-act="theme" aria-label="Toggle dark mode">${S.theme === 'dark' ? I.sun : I.moon}</button>
+    <div class="who">${avatar(S.role)}<div class="n"><span class="s13 b">${u.name}</span><span class="sm muted">${u.role}</span></div></div>
+  </header>${content}`;
+}
+function cycleHead(page){
+  const c = S.cycle, st = c ? c.status : 'Draft';
+  const links = S.role === 'tester' ? [] : [['review','Test cases'],['run','Execution'],['report','AI report']];
+  const crumb = S.role === 'tester'
+    ? `<a href="#/queue">My queue</a><span>/</span><span>Claims Portal</span><span>/</span><span style="color:var(--tx)">PR #482</span>`
+    : `<a href="#/apps">Apps</a><span>/</span><a href="#/app/claims">Claims Portal</a><span>/</span><span style="color:var(--tx)">PR #482</span>`;
+  return `<div class="sub"><div class="wrap col" style="gap:14px">
+    <div class="crumb">${crumb}</div>
+    <div class="row" style="justify-content:space-between;align-items:flex-start;gap:16px">
+      <div class="col" style="gap:6px">
+        <div class="row" style="gap:12px"><h1 style="font-size:23px">Add partial refund support to claim settlement</h1>${wpill(st)}</div>
+        <div class="row s13 muted" style="gap:6px 16px"><a href="#" data-act="ado-link" class="mono" style="text-decoration:none">PR #482</a><span>Marcus Lee, Anika Rao</span><span class="mono sm">feature/partial-refunds → main</span><span>6 commits · 19 files</span>${c && c.tester ? `<span>Tester: ${esc(c.tester)} · due ${esc(c.dueLabel)}</span>` : ''}</div>
+      </div>
+      <div class="row" style="gap:10px">
+        ${links.length ? `<div class="seg" role="tablist">${links.map(l => `<a role="tab" href="#/cycle/482/${l[0]}" class="${page === l[0] ? 'on' : ''}" aria-selected="${page === l[0]}">${l[1]}</a>`).join('')}</div>` : ''}
+        <button class="btn sm" type="button" data-act="audit">${I.clock}Audit trail</button>
+      </div>
+    </div>
+    ${stepper(st)}
+  </div></div>`;
+}
+
+/* ---------- views ---------- */
+function vSignin(){
+  return `<div class="signin">
+    <div class="l">
+      <div class="row" style="gap:12px"><span style="width:36px;height:36px;border-radius:9px;background:#fff;color:#3730A3;display:grid;place-items:center">${I.check}</span><span style="font-size:22px;font-weight:600">Verity</span></div>
+      <div class="col" style="gap:20px;max-width:520px">
+        <h1 style="font-size:44px;line-height:1.12;color:#fff">From pull request to client UAT, with evidence at every step.</h1>
+        <p style="font-size:17px;line-height:1.6;color:#D9DBFF">Verity reads your Azure DevOps pull requests, drafts test cases from the diff, routes them to testers and checks the results before anything reaches your client.</p>
+      </div>
+      <div class="col" style="gap:12px"><span class="sm b" style="letter-spacing:.08em;text-transform:uppercase;color:#C7C9FF">Every cycle follows the same path</span>
+        <div class="row" style="gap:8px">${FLOW.map(s => `<span style="padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);font-size:13px;font-weight:500">${s}</span>`).join('')}</div></div>
+    </div>
+    <div class="r">
+      <div class="card" style="width:100%;max-width:420px;padding:36px;display:flex;flex-direction:column;gap:22px">
+        <div class="col" style="gap:8px"><h2 style="font-size:26px">Sign in to Verity</h2><p class="muted" style="font-size:15px;line-height:1.55">Use your work account. Verity signs you in through Microsoft Entra ID.</p></div>
+        <button class="ms" type="button" data-act="signin"><svg width="20" height="20" viewBox="0 0 21 21" aria-hidden="true"><rect x="1" y="1" width="9" height="9" fill="#F25022"/><rect x="11" y="1" width="9" height="9" fill="#7FBA00"/><rect x="1" y="11" width="9" height="9" fill="#00A4EF"/><rect x="11" y="11" width="9" height="9" fill="#FFB900"/></svg>Sign in with Microsoft</button>
+        <div class="banner b-ac" style="align-items:flex-start"><span style="color:var(--ac)">${I.shield}</span><p class="s13" style="flex:1">Access mirrors your Azure DevOps permissions. You only see the organizations, projects and repositories you can already open in Azure DevOps.</p></div>
+        <label class="f">Prototype only: sign in as
+          <select id="demoRole" class="input">${['dev','tester','admin'].map(k => `<option value="${k}" ${S.role === k ? 'selected' : ''}>${USERS[k].name} · ${USERS[k].role}</option>`).join('')}</select></label>
+        <div class="row s13 muted" style="justify-content:space-between"><span>Trouble signing in? <a href="#" data-act="noop">Contact your Verity admin</a></span><button class="ib" type="button" data-act="theme" aria-label="Toggle dark mode">${S.theme === 'dark' ? I.sun : I.moon}</button></div>
+      </div>
+    </div></div>`;
+}
+
+function claimsOpen(){ return 3 + (S.cycle && S.cycle.status !== 'Approved for UAT' ? 1 : 0); }
+function vApps(){
+  const list = S.apps.map(a => {
+    let tag = a.tag, open = a.open;
+    if (a.id === 'claims') {
+      open = claimsOpen();
+      tag = S.cycle && S.cycle.status === 'AI Reviewed' ? ['1 awaiting your review','p-ac'] : S.cycle && S.cycle.status === 'Approved for UAT' ? ['Approved today','p-pass'] : ['In testing','p-nr'];
+    }
+    return Object.assign({}, a, {open, tag});
+  }).filter(a => S.appFilter === 'All' || (S.appFilter === 'Open' ? a.open > 0 : a.tag[1] !== 'p-nr'));
+  const admin = S.role === 'admin';
+  return `<div class="wrap col" style="gap:22px">
+    <div class="row" style="justify-content:space-between;align-items:flex-end">
+      <div class="col" style="gap:6px"><h1>Applications</h1><p class="muted" style="font-size:15px">${S.apps.length} apps linked to Azure DevOps</p></div>
+      ${admin ? `<button class="btn pri" type="button" data-act="add-app">${I.plus}Add App</button>` : `<span class="s13 muted">Admins link new apps. Switch to Sam Patel to try it.</span>`}
+    </div>
+    <div class="row">
+      <div class="seg">${[['All','All apps'],['Open','With open cycles'],['Attention','Needs review or attention']].map(f => `<button type="button" data-act="app-filter" data-v="${f[0]}" class="${S.appFilter === f[0] ? 'on' : ''}">${f[1]}</button>`).join('')}</div>
+    </div>
+    <div class="grid-apps">${list.map(a => `
+      <a class="appcard" href="#/app/${a.id}">
+        <div class="row" style="justify-content:space-between;align-items:flex-start;flex-wrap:nowrap">
+          <div class="row" style="gap:14px;flex-wrap:nowrap;min-width:0"><span class="ini">${a.ini}</span><div class="col" style="gap:4px;min-width:0"><span style="font-size:17px;font-weight:600">${esc(a.name)}</span><span class="mono sm muted ell">${esc(a.path)}</span></div></div>
+          <span class="pill ${a.tag[1]}">${a.tag[0]}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding-top:16px;border-top:1px solid var(--bd)">
+          <div class="col" style="gap:4px"><span class="sm muted">Open cycles</span><span style="font-size:20px;font-weight:600">${a.open}</span></div>
+          <div class="col" style="gap:4px"><span class="sm muted">Regression suite</span><span style="font-size:20px;font-weight:600">${a.id === 'claims' ? S.regTotal : a.reg}</span></div>
+          <div class="col" style="gap:4px"><span class="sm muted">Last approval</span><span style="font-size:15px;font-weight:500;padding-top:3px">${a.id === 'claims' && S.cycle && S.cycle.status === 'Approved for UAT' ? 'Today' : a.last}</span></div>
+        </div>
+        ${a.rate == null ? `<span class="s13 muted">No test runs yet</span>` : `<div class="col" style="gap:8px"><div class="row s13" style="justify-content:space-between"><span class="muted">Overall pass rate · last 30 days</span><span class="b" style="color:${a.rate >= 90 ? 'var(--ps)' : 'var(--bk)'}">${a.rate}%</span></div><div class="bar"><div style="width:${a.rate}%;background:${a.rate >= 90 ? 'var(--ps)' : 'var(--bk)'};border-radius:999px"></div></div></div>`}
+      </a>`).join('')}</div>
+  </div>`;
+}
+
+function vAppDetail(id, tab){
+  const a = S.apps.find(x => x.id === id) || S.apps[0];
+  const isClaims = a.id === 'claims';
+  const canNew = S.role === 'dev' && isClaims;
+  let body = '';
+  if (tab === 'regression') body = isClaims ? vRegTable() : empty('No regression cases yet', 'Promote test cases from approved cycles to start this app’s regression suite.');
+  else if (tab === 'settings') body = vSettings(a);
+  else {
+    if (!isClaims) body = empty('No test cycles yet', 'In this prototype only Claims Portal has pull requests wired up. Open Claims Portal to walk through a cycle.', `<a class="btn" href="#/app/claims">Open Claims Portal</a>`);
+    else {
+      const rows = [];
+      if (S.cycle) {
+        const cs = S.cycle.cases, p = cs.filter(x => x.r.status === 'pass').length, f = cs.filter(x => x.r.status === 'fail').length, b = cs.filter(x => x.r.status === 'blocked' || x.r.status === 'na').length;
+        const idx = FLOW.indexOf(S.cycle.status);
+        const sc = idx >= 5 ? analyze(S.cycle).score : null;
+        const target = S.role === 'dev' ? (idx >= 4 ? 'report' : idx >= 2 || S.cycle.status === 'Changes Requested' ? 'run' : 'review') : 'run';
+        rows.push(['Add partial refund support to claim settlement', `6 commits · ${cs.length} test cases`, S.cycle.status, 'PR #482', 'Marcus Lee', S.cycle.tester || 'Unassigned', p, f, b, cs.length, sc, 'Just now', 'cycle/482/' + target]);
+      }
+      STATIC_CYCLES.forEach(r => rows.push(r.concat(['sample'])));
+      body = `<div class="row"><label class="searchbox" style="width:280px">${I.search}<input type="search" placeholder="Filter by PR, title or person" aria-label="Filter cycles"></label><button class="btn sm" type="button" data-act="sample-row">Status: Open</button><button class="btn sm" type="button" data-act="sample-row">Tester: Anyone</button></div>
+      <div class="card scroll"><table class="t" style="min-width:1080px"><thead><tr><th>Cycle</th><th>Status</th><th>PR</th><th>Author</th><th>Tester</th><th style="width:170px">Progress</th><th>AI readiness</th><th>Updated</th></tr></thead><tbody>
+      ${rows.map(r => { const done = r[6] + r[7] + r[8]; const sc = r[10]; const col = sc == null ? 'var(--mu)' : sc >= 80 ? 'var(--ps)' : sc >= 65 ? 'var(--bk)' : 'var(--fl)';
+        const act = r[12] === 'sample' ? 'data-act="sample-row"' : `data-act="nav" data-h="${r[12]}"`;
+        return `<tr class="click" ${act}><td><span class="b">${esc(r[0])}</span><div class="sm muted" style="margin-top:3px">${r[1]}</div></td><td>${wpill(r[2])}</td><td class="mono s13" style="color:var(--ac)">${r[3]}</td><td>${r[4]}</td><td><span class="row" style="gap:8px;flex-wrap:nowrap"><span class="av s av-x">${r[5] === 'Unassigned' ? '?' : r[5].split(' ').map(x => x[0]).join('')}</span>${r[5]}</span></td><td><div class="row" style="gap:10px;flex-wrap:nowrap"><div class="bar" style="flex:1"><div style="width:${r[6] / r[9] * 100}%;background:var(--ps)"></div><div style="width:${r[7] / r[9] * 100}%;background:var(--fl)"></div><div style="width:${r[8] / r[9] * 100}%;background:var(--bk)"></div></div><span class="mono sm muted">${done}/${r[9]}</span></div></td><td class="s13 b" style="color:${col}">${sc == null ? 'Not run' : sc + ' / 100'}</td><td class="s13 muted">${r[11]}</td></tr>`; }).join('')}
+      </tbody></table></div>`;
+    }
+  }
+  return `<div class="sub"><div class="wrap col" style="gap:18px;padding-bottom:0">
+    <div class="crumb"><a href="#/apps">Apps</a><span>/</span><span style="color:var(--tx)">${esc(a.name)}</span></div>
+    <div class="row" style="justify-content:space-between;align-items:flex-start">
+      <div class="row" style="gap:16px;flex-wrap:nowrap"><span class="ini" style="width:52px;height:52px;font-size:18px">${a.ini}</span><div class="col" style="gap:6px"><h1>${esc(a.name)}</h1><a href="#" data-act="ado-link" class="mono s13 row" style="gap:6px;text-decoration:none">${esc(a.path)} ${I.ext}</a></div></div>
+      <div class="row" style="gap:10px"><button class="btn" type="button" data-act="run-regression">Run regression suite</button>${canNew ? `<a class="btn pri" href="#/cycle/new">${I.plus}New test cycle</a>` : ''}</div>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><span class="sm muted">Open cycles</span><b>${isClaims ? claimsOpen() : a.open}</b></div>
+      <div class="kpi"><span class="sm muted">Regression suite</span><b>${isClaims ? S.regTotal : a.reg} cases</b></div>
+      <div class="kpi"><span class="sm muted">Pass rate · 30 days</span><b style="color:var(--ps)">${a.rate == null ? '—' : a.rate + '%'}</b></div>
+      <div class="kpi"><span class="sm muted">Last approval for UAT</span><b>${isClaims && S.cycle && S.cycle.status === 'Approved for UAT' ? 'Today' : a.last.replace(', 2026', '')}</b></div>
+    </div>
+    <nav class="tabs" aria-label="App sections">
+      <a href="#/app/${a.id}" class="${tab === 'cycles' ? 'on' : ''}">Test Cycles${isClaims ? `<span class="cnt">${S.cycle ? 6 : 5}</span>` : ''}</a>
+      <a href="#/app/${a.id}/regression" class="${tab === 'regression' ? 'on' : ''}">Regression Suite</a>
+      <a href="#/app/${a.id}/settings" class="${tab === 'settings' ? 'on' : ''}">Settings</a>
+    </nav>
+  </div></div>
+  <div class="wrap col">${body}</div>`;
+}
+
+function vSettings(a){
+  const dis = S.role === 'admin' ? '' : 'disabled';
+  return `<div class="split"><div class="main">
+    <div class="card pad col">
+      <h3>Repository connection</h3>
+      ${S.role !== 'admin' ? `<div class="banner b-gray s13">${I.info}<span>Only admins can change these settings. Switch to Sam Patel to edit.</span></div>` : ''}
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px">
+        <label class="f">Azure DevOps repository<input class="input mono" value="${esc(a.path)}" readonly></label>
+        <label class="f">Target branch for cycles<select class="input" ${dis}><option>main</option><option>develop</option><option>release/*</option></select></label>
+        <label class="f">Default tester<select class="input" ${dis}><option>Priya Shah</option><option>Tomás Rivera</option><option>Jordan Kim</option></select></label>
+        <label class="f">Readiness score needed to approve<input class="input" type="number" value="75" min="0" max="100" ${dis}></label>
+      </div>
+      <h3 style="margin-top:8px">AI inputs</h3>
+      <label class="row s13" style="gap:10px"><input type="checkbox" checked ${dis}>Read code diffs</label>
+      <label class="row s13" style="gap:10px"><input type="checkbox" checked ${dis}>Read AI commit notes</label>
+      <label class="row s13" style="gap:10px"><input type="checkbox" checked ${dis}>Read linked work item acceptance criteria</label>
+      <label class="row s13" style="gap:10px"><input type="checkbox" checked ${dis}>Suggest related regression tests</label>
+      <div class="row"><button class="btn pri" type="button" data-act="settings-save" ${dis}>Save settings</button></div>
+    </div>
+    <div class="card pad col" style="gap:14px">
+      <h3>Gen AI provider for each step</h3>
+      <p class="s13 muted" style="line-height:1.55">Each AI step can run in <b style="color:var(--tx)">Azure OpenAI</b> (automatic) or as <b style="color:var(--tx)">Run in Claude</b> (the user downloads a prompt package, runs it in their own Claude and pastes the JSON reply back). Both use the same prompt and output format. Verity rejects a reply if its run ID or format does not match.</p>
+      <div class="scroll" style="border:1px solid var(--bd);border-radius:10px"><table class="t" style="min-width:640px"><thead><tr><th>AI step</th><th>Where it runs</th><th>Who</th><th>Provider</th></tr></thead><tbody>
+        ${Object.keys(AI_TASKS).map(k => { const T = AI_TASKS[k]; return `<tr><td class="b">${T.name}</td><td class="s13 muted">${T.where}</td><td class="s13">${T.who}</td><td><select class="input" style="height:34px" data-change="ai-mode" data-task="${k}" aria-label="Provider for ${T.name}" ${dis}>${['ask','azure','claude'].map(m => `<option value="${m}" ${S.aiMode[k] === m ? 'selected' : ''}>${MODE_LABEL[m]}</option>`).join('')}</select></td></tr>`; }).join('')}
+      </tbody></table></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px">
+        <label class="f">Azure OpenAI deployment<input class="input mono" value="verity-gpt-4.1 (East US 2)" ${dis}></label>
+        <label class="f">Claude handoff run expires after<select class="input" ${dis}><option>7 days</option><option>24 hours</option><option>30 days</option></select></label>
+      </div>
+    </div></div>
+    <div class="side"><div class="card pad col" style="gap:12px">
+      <h3>Integration health</h3>
+      ${[['Entra ID sign-in','Connected'],['Azure DevOps API (on behalf of user)','Connected'],['Service hook: PR created or updated','Receiving · last event 4 min ago'],['PR status check: verity/uat-ready','Posting to PRs'],['Evidence storage','Connected']].map(x => `<div class="row s13" style="justify-content:space-between;gap:8px;flex-wrap:nowrap"><span>${x[0]}</span><span class="row" style="gap:6px;color:var(--ps);flex-wrap:nowrap"><span class="dot" style="background:var(--ps)"></span>${x[1]}</span></div>`).join('')}
+    </div></div></div>`;
+}
+
+function vNewCycle(){
+  if (S.role !== 'dev') return `<div class="wrap">${empty('Senior developers start test cycles', 'Switch to Daniel Okafor to create a cycle from a pull request.', `<button class="btn pri" type="button" data-act="switch-role" data-r="dev" data-h="cycle/new">Switch to Daniel Okafor</button>`)}</div>`;
+  let prs = 0, commits = 0, files = 0, firstTitle = '';
+  const cards = PRS.map(p => {
+    const inCycle = p.inCycle || (p.num === 482 && !!S.cycle);
+    const chosen = inCycle ? [] : p.commits.filter(c => S.sel[c[0]]);
+    if (chosen.length) { prs++; if (!firstTitle) firstTitle = 'PR #' + p.num + ' · ' + p.title; }
+    commits += chosen.length; chosen.forEach(c => { files += c[4]; });
+    const open = !!S.openPR[p.num] && !inCycle;
+    return `<div class="pr ${chosen.length ? 'sel' : ''} ${inCycle ? 'dis' : ''}">
+      <div class="pr-h">
+        <div style="padding-top:2px"><input type="checkbox" data-change="pr" data-n="${p.num}" ${chosen.length ? 'checked' : ''} ${inCycle ? 'disabled' : ''} aria-label="Include PR ${p.num}"></div>
+        <div class="col" style="flex:1;min-width:0;gap:8px">
+          <div class="row" style="gap:10px"><span class="mono s13" style="color:var(--ac);font-weight:500">#${p.num}</span><span style="font-size:15px;font-weight:600">${esc(p.title)}</span>${inCycle ? '<span class="pill p-nr">Already in a cycle</span>' : ''}</div>
+          <div class="row s13 muted" style="gap:6px 16px"><span>${p.author}</span><span class="mono sm">${p.branch} → main</span><span>Opened ${p.created}</span><span>${inCycle ? '' : p.commits.length + ' commits'}</span><span class="row" style="gap:6px">${p.items.map(w => `<a href="#" data-act="ado-link" class="mono sm" style="padding:1px 7px;border-radius:6px;border:1px solid var(--bd);color:var(--tx);text-decoration:none">${w}</a>`).join('')}</span></div>
+        </div>
+        ${inCycle ? '' : `<button class="ib" type="button" data-act="pr-expand" data-n="${p.num}" aria-expanded="${open}" aria-label="Show commits for PR ${p.num}" style="border-color:var(--bd)"><span style="display:inline-grid;transform:${open ? 'rotate(180deg)' : 'none'}">${I.chev}</span></button>`}
+      </div>
+      ${open ? `<div class="scroll" style="border-top:1px solid var(--bd);background:var(--sf2)"><table class="t" style="min-width:740px"><thead><tr><th style="width:40px"></th><th style="width:90px">Commit</th><th>Message and AI commit notes</th><th style="width:120px">Author</th><th style="width:60px;text-align:right">Files</th></tr></thead><tbody>
+        ${p.commits.map(c => `<tr style="vertical-align:top"><td style="background:var(--sf2)"><input type="checkbox" data-change="commit" data-h="${c[0]}" ${S.sel[c[0]] ? 'checked' : ''} aria-label="Include commit ${c[0]}"></td><td class="mono s13" style="color:var(--ac);background:var(--sf2)">${c[0]}</td><td style="background:var(--sf2)"><div style="font-weight:500">${esc(c[1])}</div>${c[3] ? `<div class="row s13 muted" style="margin-top:6px;gap:8px;flex-wrap:nowrap;align-items:flex-start"><span class="ai-note">AI note</span><span style="line-height:1.5">${esc(c[3])}</span></div>` : `<div class="s13 muted" style="margin-top:6px">No AI commit notes</div>`}</td><td class="s13" style="background:var(--sf2)">${c[2]}</td><td class="mono s13" style="text-align:right;background:var(--sf2)">${c[4]}</td></tr>`).join('')}
+      </tbody></table></div>` : ''}
+    </div>`;
+  }).join('');
+  return `<div class="sub"><div class="wrap col" style="gap:16px">
+    <div class="crumb"><a href="#/apps">Apps</a><span>/</span><a href="#/app/claims">Claims Portal</a><span>/</span><span style="color:var(--tx)">New test cycle</span></div>
+    <div class="row" style="justify-content:space-between;align-items:flex-end"><div class="col" style="gap:6px"><h1>New test cycle</h1><p class="muted">Choose the pull requests and commits to test. Verity reads their diffs, commit notes and linked work items.</p></div>
+    <span class="row s13 muted" style="gap:8px"><span class="dot" style="background:var(--ps)"></span>Synced with Azure DevOps 2 min ago <button class="ib" type="button" data-act="resync" aria-label="Sync now">${I.refresh}</button></span></div>
+    ${stepper('Draft')}
+  </div></div>
+  <div class="wrap split">
+    <section class="main">
+      <div class="row"><h2 style="font-size:16px">Active pull requests</h2><span class="s13 muted">into main · ${PRS.length} open</span><div class="sp"></div><label class="searchbox" style="width:260px">${I.search}<input type="search" placeholder="Search PRs or work items" aria-label="Search pull requests"></label></div>
+      ${cards}
+    </section>
+    <aside class="side"><div class="card pad col" style="gap:18px">
+      <h3>Cycle scope</h3>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px">${[[prs,'PRs'],[commits,'Commits'],[files,'Files changed']].map(k => `<div style="padding:12px;border-radius:10px;background:var(--sf2)" class="col"><span style="font-size:22px;font-weight:600">${k[0]}</span><span class="sm muted" style="margin-top:-12px">${k[1]}</span></div>`).join('')}</div>
+      <label class="f">Cycle name<input class="input" value="${esc(firstTitle || 'Untitled cycle')}"></label>
+      <div class="col" style="gap:10px"><span class="s13" style="font-weight:500">AI will use</span>
+        ${['Code diffs','AI commit notes','Linked work item acceptance criteria','Match against regression suite (' + S.regTotal + ')'].map(x => `<label class="row" style="gap:10px"><input type="checkbox" checked>${x}</label>`).join('')}</div>
+      <button class="btn pri lg" type="button" data-act="generate" ${commits ? '' : 'disabled'}>${I.spark}${commits ? 'Generate Test Cases with AI' : 'Select at least one commit'}</button>
+      <p class="sm muted" style="line-height:1.5">Generated test cases are drafts. You review and edit every case before assigning a tester.</p>
+    </div></aside>
+  </div>`;
+}
+
+function vReview(){
+  const c = S.cycle;
+  if (!c) return `<div class="wrap">${empty('No cycle yet', 'Start a new test cycle from PR #482 first.', `<a class="btn pri" href="#/cycle/new">New test cycle</a>`)}</div>`;
+  const editable = c.status === 'Tests Generated' && S.role === 'dev';
+  const dis = editable ? '' : 'disabled';
+  const counts = {}; c.cases.forEach(t => { counts[t.mod] = (counts[t.mod] || 0) + 1; });
+  const edited = c.cases.filter(t => t.edited).length;
+  let banner = '';
+  if (!editable && S.role !== 'dev') banner = `<div class="banner b-gray s13">${I.info}<span>Test cases are curated by the senior developer.</span></div>`;
+  else if (!editable) banner = `<div class="banner b-ac s13">${I.info}<span style="flex:1">Assigned to <b>${esc(c.tester)}</b>, due ${esc(c.dueLabel)}. Cases are locked while the cycle is with the tester.</span><button class="btn sm" type="button" data-act="switch-role" data-r="tester" data-h="cycle/482/run">Switch to ${esc(c.tester)}’s view</button></div>`;
+  const suggList = SUGG.filter(s => !c.suggest || c.suggest.includes(s.reg));
+  const riskN = r => getMods(c).filter(m => m.risk === r).length;
+  const sugg = S.suggestionsOn ? `<div class="card" style="border-color:var(--acf);overflow:hidden">
+      <div class="row" style="padding:12px 16px;background:var(--acs)"><span class="b" style="color:var(--ac)">${plural(suggList.length, 'related regression test')} suggested</span><span class="s13 muted">from ${S.regTotal} in the Claims Portal suite</span><div class="sp"></div><button class="btn pri sm" type="button" data-act="add-all-sugg" ${dis}>Add all</button></div>
+      ${suggList.map(s => `<div class="row" style="padding:12px 16px;border-top:1px solid var(--bd)"><span class="mono sm muted" style="width:64px">${s.reg}</span><div class="col" style="flex:1 1 360px;min-width:0;gap:3px"><span style="font-weight:500">${s.title}</span><span class="s13 muted"><b style="color:var(--tx)">Match reason:</b> ${s.reason}</span></div><span class="sm muted">Last run ${s.last}</span>${S.suggAdded[s.reg] ? `<span class="pill p-pass">${I.check}Added as ${S.suggAdded[s.reg]}</span>` : `<button class="btn sm" type="button" data-act="add-sugg" data-id="${s.reg}" ${dis}>Add to cycle</button>`}</div>`).join('')}
+    </div>` : '';
+  return cycleHead('review') + `<div class="wrap split">
+    <aside class="side">
+      <section class="card pad col" style="gap:14px">
+        <div class="row" style="gap:8px"><span style="color:var(--ac)">${I.spark}</span><h3 style="font-size:15px">AI change summary</h3></div>
+        <p style="line-height:1.6">${esc(c.summary || '')}</p>
+        <div class="row" style="gap:8px"><span class="risk r-High">${riskN('High')} high risk</span><span class="risk r-Medium">${riskN('Medium')} medium</span><span class="risk r-Low">${riskN('Low')} low</span></div>
+        <span class="prov">${provLine(c.genAi)}</span>
+      </section>
+      <section class="card" style="overflow:hidden">
+        <h3 style="font-size:15px;padding:16px 20px;border-bottom:1px solid var(--bd)">Changes by module</h3>
+        ${getMods(c).map(m => `<div class="col" style="gap:6px;padding:14px 20px;border-bottom:1px solid var(--bd)"><div class="row" style="justify-content:space-between;flex-wrap:nowrap"><span class="b">${esc(m.name)}</span><span class="risk r-${m.risk}">${m.risk} risk</span></div><p class="s13 muted" style="line-height:1.5">${esc(m.desc)}</p><span class="sm muted">${plural(counts[m.id] || 0, 'test case')} cover this</span></div>`).join('')}
+        <details><summary class="row b" style="padding:14px 20px;justify-content:space-between;cursor:pointer">Files changed (${FILES.length})${I.chev}</summary>
+          <div style="padding:0 12px 12px">${FILES.map(f => `<div class="row" style="gap:8px;padding:6px 8px;flex-wrap:nowrap"><span class="dot" style="border-radius:2px;background:${f[0] === 'A' ? 'var(--ps)' : 'var(--bk)'}" title="${f[0] === 'A' ? 'Added' : 'Modified'}"></span><span class="mono sm ell" style="flex:1">${f[1]}</span><span class="mono sm" style="color:var(--ps)">+${f[2]}</span><span class="mono sm" style="color:var(--fl)">−${f[3]}</span></div>`).join('')}</div>
+        </details>
+      </section>
+    </aside>
+    <section class="main">
+      ${banner}
+      <div class="row"><h2>Test cases</h2><span class="s13 muted">${c.cases.length} drafted${edited ? ' · ' + edited + ' edited by you' : ''}</span><div class="sp"></div>
+        <button class="btn sm" type="button" data-act="case-new" ${dis}>${I.plus}Add test case manually</button>
+        <button class="btn sm" type="button" data-act="regen" ${dis}>${I.refresh}Regenerate</button>
+        <button class="btn sm ${S.suggestionsOn ? 'on' : ''}" type="button" data-act="toggle-sugg" aria-pressed="${S.suggestionsOn}">${I.list}Include related regression tests</button>
+      </div>
+      ${sugg}
+      <div class="card scroll"><div style="min-width:940px">
+        <div class="chead"><span>ID</span><span>Title</span><span>Type</span><span>Priority</span><span>Linked file / module</span><span>Source</span><span style="text-align:right">Actions</span></div>
+        ${c.cases.map(t => `<div class="case ${t.edited ? 'ed' : ''}">
+          <div class="case-top">
+            <span class="mono sm muted">${t.id}</span>
+            <span class="b row" style="gap:8px">${esc(t.title)}${t.edited ? '<span class="tag ed">Edited</span>' : ''}${t.promoted ? '<span class="tag ok">In regression</span>' : ''}</span>
+            <span class="tag" style="justify-self:start">${t.type}</span>
+            <span class="prio ${t.pri}">${t.pri}</span>
+            <span class="mono sm muted ell">${esc(t.file)}</span>
+            <span>${srcBadge(t.src)}</span>
+            <div class="row" style="gap:2px;justify-content:flex-end;flex-wrap:nowrap">
+              <button class="ib" type="button" data-act="case-edit" data-id="${t.id}" aria-label="Edit ${t.id}" title="Edit" ${dis}>${I.edit}</button>
+              <button class="ib" type="button" data-act="case-dup" data-id="${t.id}" aria-label="Duplicate ${t.id}" title="Duplicate" ${dis}>${I.dup}</button>
+              <button class="ib" type="button" data-act="case-promote" data-id="${t.id}" aria-label="Promote ${t.id} to regression" title="Promote to regression" ${t.promoted || S.role !== 'dev' ? 'disabled' : ''}>${I.promote}</button>
+              <button class="ib" type="button" data-act="case-del" data-id="${t.id}" aria-label="Delete ${t.id}" title="Delete" ${dis}>${I.trash}</button>
+            </div>
+          </div>
+          <div class="case-bot"><span></span><div><div class="lbl">Preconditions</div>${esc(t.pre)}</div><div><div class="lbl">Steps</div><ol>${t.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol></div><div><div class="lbl">Expected result</div>${esc(t.exp)}</div></div>
+        </div>`).join('')}
+      </div></div>
+      ${editable ? `<div class="card pad row" style="align-items:flex-end;gap:16px">
+        <label class="f" style="flex:1 1 260px">Assign to tester<select id="assignTester" class="input"><option>Priya Shah</option><option>Tomás Rivera</option><option>Jordan Kim</option></select></label>
+        <label class="f" style="flex:0 1 200px">Due date<input id="assignDue" class="input" type="date" value="2026-11-03"></label>
+        <button class="btn pri" type="button" data-act="assign" ${c.cases.length ? '' : 'disabled'}>Assign ${plural(c.cases.length, 'case')}</button>
+      </div>` : ''}
+    </section>
+  </div>`;
+}
+
+function vQueue(){
+  const rows = [];
+  if (S.cycle && FLOW.indexOf(S.cycle.status) >= 2 || (S.cycle && S.cycle.status === 'Changes Requested')) {
+    const c = S.cycle, done = c.cases.filter(x => x.r.status).length;
+    const tab = ['Assigned','In Testing','Changes Requested'].includes(c.status) ? 'Open' : c.status === 'Approved for UAT' ? 'Completed' : 'Submitted';
+    rows.push({tab, app:'Claims Portal', pr:'PR #482', title:'Add partial refund support to claim settlement', status:c.status, done, total:c.cases.length, due:c.dueLabel, note:c.status === 'Changes Requested' ? c.changeComment : '', live:true, cta:c.status === 'Assigned' ? 'Start testing' : c.status === 'In Testing' ? 'Continue testing' : c.status === 'Changes Requested' ? 'Resume' : 'View'});
+  }
+  rows.push({tab:'Open', app:'Claims Portal', pr:'Release 2026.10.2', title:'October release candidate 2', status:'Changes Requested', done:31, total:38, due:'Today', note:'TC-22 says Pass but the actual result mentions a timeout. Re-run it and attach the API log.', cta:'Resume'});
+  rows.push({tab:'Open', app:'Member Mobile API', pr:'PR #311', title:'Push notification opt-out per category', status:'Assigned', done:0, total:9, due:'Nov 5', cta:'Start testing'});
+  rows.push({tab:'Open', app:'Billing Service', pr:'PR #904', title:'Invoice PDF: add remittance footer', status:'Assigned', done:0, total:6, due:'Nov 6', cta:'Start testing'});
+  rows.push({tab:'Submitted', app:'Adjuster Workbench', pr:'PR #233', title:'Bulk reassign claims between adjusters', status:'Submitted', done:7, total:7, due:'Oct 29', cta:'View'});
+  rows.push({tab:'Completed', app:'Claims Portal', pr:'PR #468', title:'Claims export: CSV format v2', status:'Approved for UAT', done:12, total:12, due:'Oct 21', cta:'View'});
+  const shown = rows.filter(r => r.tab === S.queueTab);
+  const openCount = rows.filter(r => r.tab === 'Open').length;
+  const left = rows.filter(r => r.tab === 'Open').reduce((s, r) => s + r.total - r.done, 0);
+  if (S.role !== 'tester') return `<div class="wrap">${empty('This is the tester’s queue', 'Switch to Priya Shah to see assigned cycles.', `<button class="btn pri" type="button" data-act="switch-role" data-r="tester" data-h="queue">Switch to Priya Shah</button>`)}</div>`;
+  return `<div class="wrap col" style="gap:22px;max-width:1200px">
+    <div class="row" style="justify-content:space-between;align-items:flex-end"><div class="col" style="gap:6px"><h1>My testing queue</h1><p class="muted" style="font-size:15px">${plural(openCount, 'open cycle')} · ${plural(left, 'test case')} left</p></div>
+      <div class="seg">${['Open','Submitted','Completed'].map(t => `<button type="button" data-act="queue-tab" data-v="${t}" class="${S.queueTab === t ? 'on' : ''}">${t} (${rows.filter(r => r.tab === t).length})</button>`).join('')}</div></div>
+    ${!S.cycle || S.cycle.status === 'Tests Generated' ? `<div class="banner b-gray s13">${I.info}<span>PR #482 will appear here once Daniel Okafor assigns it to you.</span></div>` : ''}
+    ${shown.length ? shown.map(q => `<a class="card row" href="${q.live ? '#/cycle/482/run' : '#'}" ${q.live ? '' : 'data-act="sample-row"'} style="padding:20px 24px;gap:20px;text-decoration:none;color:var(--tx);${q.live ? 'border-color:var(--acf)' : ''}">
+      <div class="col" style="flex:1 1 420px;min-width:0;gap:8px">
+        <div class="row" style="gap:10px"><span class="s13 muted" style="font-weight:500">${q.app}</span><span class="mono s13" style="color:var(--ac)">${q.pr}</span>${wpill(q.status)}</div>
+        <span style="font-size:17px;font-weight:600">${q.title}</span>
+        ${q.note ? `<div class="row s13" style="gap:8px;align-items:flex-start;flex-wrap:nowrap;padding:10px 12px;border-radius:8px;background:var(--bkb);line-height:1.5">${avatar('dev', true)}<span><b>Daniel Okafor requested changes:</b> ${esc(q.note)}</span></div>` : ''}
+      </div>
+      <div class="col" style="flex:0 1 220px;gap:8px"><div class="row s13" style="justify-content:space-between"><span class="muted">Progress</span><span class="mono">${q.done}/${q.total}</span></div><div class="bar"><div style="width:${q.done / q.total * 100}%;background:var(--acf)"></div></div></div>
+      <div class="col" style="flex:0 0 100px;gap:4px"><span class="sm muted">Due</span><span class="b" style="color:${q.due === 'Today' ? 'var(--fl)' : 'var(--tx)'}">${q.due}</span></div>
+      <span class="btn ${q.live ? 'pri' : ''}">${q.cta}</span>
+    </a>`).join('') : empty('Nothing here', 'No cycles in this list.')}
+  </div>`;
+}
+
+function vRun(){
+  const c = S.cycle;
+  if (!c || c.status === 'Tests Generated') return cycleHeadMaybe() + `<div class="wrap">${empty('Not assigned yet', 'This cycle reaches the tester after the senior developer reviews the test cases and assigns them.', S.role === 'tester' ? `<button class="btn" type="button" data-act="switch-role" data-r="dev" data-h="${c ? 'cycle/482/review' : 'cycle/new'}">Switch to Daniel Okafor</button>` : '')}</div>`;
+  const lock = locked();
+  const canEdit = S.role === 'tester' && !lock;
+  const dis = canEdit ? '' : 'disabled';
+  if (S.runIdx >= c.cases.length) S.runIdx = 0;
+  const t = c.cases[S.runIdx];
+  const cnt = {pass:0, fail:0, blocked:0, na:0}; let done = 0;
+  c.cases.forEach(x => { if (x.r.status) { done++; cnt[x.r.status]++; } });
+  const ready = done === c.cases.length;
+  if (t.r.chk.length !== t.steps.length) t.r.chk = t.steps.map((_, j) => !!t.r.chk[j]);
+  let banner = '';
+  if (S.role !== 'tester') banner = `<div class="banner b-gray s13">${I.info}<span style="flex:1">You are viewing ${esc(c.tester)}’s results. Only the assigned tester can record results.</span>${!lock ? `<button class="btn sm" type="button" data-act="switch-role" data-r="tester" data-h="cycle/482/run">Switch to ${esc(c.tester)}</button>` : ''}</div>`;
+  else if (c.status === 'Changes Requested') banner = `<div class="banner b-warn s13" style="align-items:flex-start;flex-wrap:nowrap">${avatar('dev', true)}<span><b>Daniel Okafor requested changes:</b> ${esc(c.changeComment)}</span></div>`;
+  else if (lock) banner = `<div class="banner ${c.status === 'Approved for UAT' ? 'b-ok' : 'b-ac'} s13">${I.info}<span style="flex:1">${c.status === 'Submitted' ? 'Submitted for review. Verity is running AI validation.' : c.status === 'AI Reviewed' ? 'Submitted. Waiting for Daniel Okafor to approve or request changes.' : 'Approved for client UAT. Results are read-only.'}</span>${c.status !== 'Submitted' ? `<button class="btn sm" type="button" data-act="switch-role" data-r="dev" data-h="cycle/482/report">Switch to Daniel Okafor</button>` : ''}</div>`;
+  else if (c.status === 'Assigned') banner = `<div class="banner b-ac s13">${I.info}<span style="flex:1">Recording your first result moves the cycle to In Testing. In this prototype you can also fill all cases with sample results.</span></div>`;
+  return cycleHead('run') + `
+  <div class="sub" style="background:var(--sf2)"><div class="wrap row" style="padding-top:14px;padding-bottom:14px;gap:16px 24px">
+    <div class="col" style="flex:1 1 380px;gap:8px">
+      <div class="row s13" style="justify-content:space-between"><span class="b">${done} of ${c.cases.length} recorded</span><span class="row muted" style="gap:12px"><span style="color:var(--ps)">${cnt.pass} pass</span><span style="color:var(--fl)">${cnt.fail} fail</span><span style="color:var(--bk)">${cnt.blocked} blocked</span><span>${cnt.na} N/A</span></span></div>
+      <div class="segbar" role="img" aria-label="Progress by test case" style="grid-template-columns:repeat(${c.cases.length},minmax(0,1fr))">${c.cases.map((x, i) => `<span style="background:${x.r.status ? RS[x.r.status][2] : i === S.runIdx ? 'var(--acf)' : 'var(--bd2)'}"></span>`).join('')}</div>
+    </div>
+    ${canEdit && !ready ? `<button class="btn sm" type="button" data-act="fill-sample">Prototype: fill sample results</button>` : ''}
+    ${S.role === 'tester' && !lock ? `<div class="col" style="gap:4px;align-items:flex-end"><button class="btn pri" type="button" data-act="submit" ${ready ? '' : 'disabled'}>Submit for Review</button>${ready ? '' : `<span class="sm muted">${plural(c.cases.length - done, 'case')} still need a status</span>`}</div>` : ''}
+  </div></div>
+  <div class="wrap col">
+    ${banner}
+    <div class="split">
+    <nav class="side card navlist" aria-label="Test cases" style="overflow:hidden;gap:0;flex-basis:300px">
+      <div class="b" style="padding:14px 16px">Test cases</div>
+      ${c.cases.map((x, i) => `<button type="button" data-act="run-pick" data-i="${i}" class="${i === S.runIdx ? 'on' : ''}" ${i === S.runIdx ? 'aria-current="true"' : ''}>
+        <span class="dot" style="width:10px;height:10px;${x.r.status ? 'background:' + RS[x.r.status][2] : 'border:2px solid var(--bd2)'}"></span>
+        <span class="col" style="flex:1;min-width:0;gap:2px"><span class="mono" style="font-size:11px;color:var(--mu)">${x.id} · ${x.pri}</span><span class="s13" style="font-weight:500;line-height:1.35">${esc(x.title)}</span></span>
+        <span style="font-size:11px;font-weight:600;white-space:nowrap;color:${x.r.status ? RS[x.r.status][2] : 'var(--mu)'}">${x.r.status ? (x.r.status === 'na' ? 'N/A' : RS[x.r.status][0]) : 'Not run'}</span></button>`).join('')}
+    </nav>
+    <section class="main">
+      <div class="card pad col" style="padding:24px;gap:20px">
+        <div class="row" style="justify-content:space-between;align-items:flex-start">
+          <div class="col" style="gap:8px"><div class="row" style="gap:8px"><span class="mono s13 muted">${t.id}</span><span class="tag">${t.type}</span><span class="prio ${t.pri}">${t.pri}</span><span class="mono sm muted">${esc(t.file)}</span></div><h2 style="font-size:22px">${esc(t.title)}</h2></div>
+          <span class="s13 muted">Case ${S.runIdx + 1} of ${c.cases.length}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px">
+          <div style="padding:14px 16px;border-radius:10px;background:var(--sf2)"><div class="lbl">Preconditions</div><span style="line-height:1.5">${esc(t.pre)}</span></div>
+          <div style="padding:14px 16px;border-radius:10px;background:var(--acs)"><div class="lbl" style="color:var(--ac)">Expected result</div><span style="line-height:1.5">${esc(t.exp)}</span></div>
+        </div>
+        <fieldset style="border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px">
+          <legend class="b" style="margin-bottom:8px">Steps <span class="muted" style="font-weight:400">· ${t.r.chk.filter(Boolean).length} of ${t.steps.length} checked</span></legend>
+          ${t.steps.map((s, j) => `<label class="stepchk ${t.r.chk[j] ? 'on' : ''}"><input type="checkbox" data-change="step" data-j="${j}" ${t.r.chk[j] ? 'checked' : ''} ${dis}><span class="mono sm muted" style="width:16px">${j + 1}</span><span style="flex:1">${esc(s)}</span></label>`).join('')}
+        </fieldset>
+      </div>
+      <div class="card pad col" style="padding:24px;gap:20px">
+        <h3>Record result</h3>
+        <label class="f">Actual result<textarea id="f-actual" class="input" rows="3" data-input="actual" placeholder="Describe what actually happened" ${dis}>${esc(t.r.actual)}</textarea></label>
+        <div class="col" style="gap:8px"><span class="s13" style="font-weight:500">Status</span>
+          <div role="radiogroup" aria-label="Status" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px">
+            ${['pass','fail','blocked','na'].map(k => { const on = t.r.status === k; return `<button type="button" role="radio" aria-checked="${on}" class="stbtn" data-act="set-status" data-s="${k}" ${dis} style="${on ? `background:${RS[k][3]};color:${RS[k][2]};border:2px solid ${RS[k][2]}` : ''}"><span class="dot" style="width:10px;height:10px;background:${RS[k][2]}"></span>${RS[k][0]}</button>`; }).join('')}
+          </div></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px">
+          <label class="f">Notes<textarea id="f-notes" class="input" rows="3" data-input="notes" placeholder="Anything the reviewer should know" ${dis}>${esc(t.r.notes)}</textarea></label>
+          <div class="col" style="gap:6px"><label for="f-bug" class="s13" style="font-weight:500">Defect link</label>
+            <div class="row" style="gap:8px;flex-wrap:nowrap"><input id="f-bug" class="input" style="flex:1" data-input="bug" value="${esc(t.r.bug)}" placeholder="Azure DevOps bug ID, e.g. AB#1318" ${dis}><button class="btn" type="button" data-act="create-bug" ${dis}>${I.plus}Create bug</button></div>
+            <span class="sm muted">Create bug opens a prefilled Azure DevOps bug with steps and evidence.</span></div>
+        </div>
+        <div class="col" style="gap:8px"><span class="s13" style="font-weight:500">Evidence</span>
+          ${canEdit ? `<label class="drop"><span style="color:var(--ac)">${I.upload}</span><span><span class="b" style="color:var(--ac)">Upload files</span> or drag them here</span><span class="sm muted">Screenshots, logs or screen recordings · up to 200 MB each</span><input type="file" multiple data-change="evidence" style="display:none"></label>` : ''}
+          ${t.r.ev.length ? t.r.ev.map((e, k) => `<div class="file"><span class="ft">${e.split('.').pop().toUpperCase().slice(0, 4)}</span><span class="col" style="flex:1;min-width:0;gap:2px"><span class="mono s13 ell">${esc(e)}</span><span class="sm muted">Stored in evidence storage</span></span>${canEdit ? `<button class="ib" type="button" data-act="ev-del" data-k="${k}" aria-label="Remove ${esc(e)}">${I.close}</button>` : ''}</div>`).join('') : (canEdit ? '' : '<span class="s13 muted">No evidence attached</span>')}
+        </div>
+      </div>
+      <div class="row" style="justify-content:space-between"><button class="btn" type="button" data-act="run-prev" ${S.runIdx === 0 ? 'disabled' : ''}>← Previous case</button><button class="btn pri" type="button" data-act="run-next" ${S.runIdx === c.cases.length - 1 ? 'disabled' : ''}>${canEdit ? 'Save and next' : 'Next case'} →</button></div>
+    </section></div>
+  </div>`;
+}
+function cycleHeadMaybe(){ return S.cycle ? cycleHead('run') : ''; }
+
+function analyze(c){
+  const cs = c.cases, cnt = {pass:0, fail:0, blocked:0, na:0, none:0};
+  cs.forEach(x => { cnt[x.r.status || 'none']++; });
+  const pick = list => list.map(f => { const t = cs.find(x => x.id === f.id); return t ? Object.assign({}, t, {why:f.why}) : null; }).filter(Boolean);
+  const consistency = c.ai ? pick(c.ai.consistency) : [];
+  const gaps = c.ai ? pick(c.ai.gaps) : [];
+  const issues = cs.filter(x => x.r.status === 'fail' || x.r.status === 'blocked');
+  const mods = getMods(c).map(m => { const mc = cs.filter(x => x.mod === m.id); const p = mc.filter(x => x.r.status === 'pass').length, f = mc.filter(x => x.r.status === 'fail').length, b = mc.filter(x => x.r.status === 'blocked' || x.r.status === 'na').length; return Object.assign({}, m, {cases:mc.map(x => x.id).join(', ') || 'No cases', total:mc.length, p, f, b, verified:mc.length > 0 && p + f === mc.length}); });
+  const highUnv = mods.filter(m => m.risk === 'High' && !m.verified).length;
+  const obs = consistency.length + gaps.length;
+  let score = 100 - 8 * cnt.fail - 6 * cnt.blocked - 2 * obs - 10 * highUnv - 2 * cnt.na;
+  score = Math.max(0, Math.min(100, score));
+  const p1fail = issues.some(x => x.r.status === 'fail' && x.pri === 'P1');
+  const verdict = p1fail ? 'Not ready: a P1 case failed' : score >= 80 ? (obs ? `Ready for UAT with ${plural(obs, 'observation')}` : 'Ready for UAT') : score >= 65 ? 'Needs attention before UAT' : 'Not ready for UAT';
+  const verified = mods.filter(m => m.verified).length;
+  const highOk = mods.filter(m => m.risk === 'High').every(m => m.verified);
+  let summary = highOk ? 'High-risk refund logic and validation are fully tested.' : 'At least one high-risk area is not fully verified.';
+  if (cnt.fail) summary += ` ${plural(cnt.fail, 'case')} failed${issues.some(x => x.r.bug) ? ' with a bug logged' : ''}.`;
+  if (cnt.blocked) summary += ` ${plural(cnt.blocked, 'case')} could not run, so ${cnt.blocked === 1 ? 'that area is' : 'those areas are'} unverified.`;
+  if (!cnt.fail && !cnt.blocked) summary += ' Every case ran.';
+  const p1pass = cs.filter(x => x.r.status === 'pass' && x.pri === 'P1');
+  const parts = [
+    ['Coverage of changed areas', Math.round(100 * verified / mods.length)],
+    ['Result consistency', Math.max(0, 100 - 14 * consistency.length)],
+    ['Evidence on high-priority cases', p1pass.length ? Math.round(100 * p1pass.filter(x => x.r.ev.length).length / p1pass.length) : 100],
+    ['Outcomes', Math.round(100 * cnt.pass / cs.length)]
+  ];
+  return {cnt, consistency, gaps, issues, mods, score, verdict, summary, parts, obs, verified};
+}
+function scoreColor(s){ return s >= 80 ? 'var(--ps)' : s >= 65 ? 'var(--bk)' : 'var(--fl)'; }
+
+function vReport(){
+  const c = S.cycle;
+  if (!c || (FLOW.indexOf(c.status) < 4 && c.status !== 'Changes Requested')) return (c ? cycleHead('report') : '') + `<div class="wrap">${empty('No submission yet', 'The AI validation report appears after the tester submits results.')}</div>`;
+  if (c.status === 'Submitted') {
+    const md = S.aiMode.validate;
+    if (md === 'azure') return cycleHead('report') + `<div class="wrap"><div class="card empty"><div class="spin"></div><h3>AI validation is running in Azure OpenAI</h3><p class="muted">Checking coverage, result consistency and evidence for ${plural(c.cases.length, 'case')}.</p></div></div>`;
+    const btns = S.role !== 'dev' ? `<button class="btn pri" type="button" data-act="switch-role" data-r="dev" data-h="cycle/482/report">Switch to Daniel Okafor</button>`
+      : (md !== 'claude' ? `<button class="btn pri" type="button" data-act="ai-azure" data-task="validate">${I.cloud}Run with Azure OpenAI</button>` : '') + `<button class="btn ${md === 'claude' ? 'pri' : ''}" type="button" data-act="ai-claude" data-task="validate">${I.chat}Run in Claude</button>`;
+    return cycleHead('report') + `<div class="wrap"><div class="card empty"><span class="aio-i">${I.spark}</span><h3>${esc(c.tester)} submitted ${plural(c.cases.length, 'result')}. Run the AI validation.</h3><p class="muted" style="max-width:520px;line-height:1.5">${S.role === 'dev' ? 'Run it in Azure OpenAI, or download the prompt and run it in your own Claude. Both give the same report format, and Verity calculates the readiness score the same way.' : 'Only the senior developer runs the AI validation.'}</p><div class="row" style="justify-content:center">${btns}</div></div></div>`;
+  }
+  const R = analyze(c);
+  const canDecide = S.role === 'dev' && c.status === 'AI Reviewed';
+  const circ = 402.1, dash = (R.score / 100 * circ).toFixed(1);
+  let statusBanner = '';
+  if (c.status === 'Approved for UAT') statusBanner = `<div class="banner b-ok">${I.check}<span style="flex:1"><b>Approved for client UAT</b> by Daniel Okafor at ${esc(c.approvedAt)}.${c.approvedNote ? ' Note: ' + esc(c.approvedNote) : ''} PR #482 now shows the verity/uat-ready check as succeeded in Azure DevOps.</span></div>`;
+  if (c.status === 'Changes Requested') statusBanner = `<div class="banner b-warn"><span style="flex:1"><b>Changes requested.</b> Returned to ${esc(c.tester)}: “${esc(c.changeComment)}” This report is from AI run ${c.aiRuns}.</span>${S.role === 'dev' ? `<button class="btn sm" type="button" data-act="switch-role" data-r="tester" data-h="cycle/482/run">Switch to ${esc(c.tester)}</button>` : ''}</div>`;
+  if (S.role !== 'dev' && c.status === 'AI Reviewed') statusBanner = `<div class="banner b-gray s13">${I.info}<span style="flex:1">Only senior developers can approve or request changes.</span><button class="btn sm" type="button" data-act="switch-role" data-r="dev" data-h="cycle/482/report">Switch to Daniel Okafor</button></div>`;
+  const openBtn = id => `<button class="btn sm" type="button" data-act="open-case" data-id="${id}">Open ${id} →</button>`;
+  return cycleHead('report') + `<div class="wrap col" style="gap:20px">
+    ${statusBanner}
+    <section class="card row" style="padding:28px;gap:32px">
+      <div class="ring"><svg width="148" height="148" viewBox="0 0 148 148" role="img" aria-label="Readiness score ${R.score} out of 100"><circle cx="74" cy="74" r="64" fill="none" stroke="var(--sf2)" stroke-width="12"/><circle cx="74" cy="74" r="64" fill="none" stroke="${scoreColor(R.score)}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${dash} ${circ}" transform="rotate(-90 74 74)"/></svg><div class="c"><span style="font-size:44px;font-weight:700;line-height:1">${R.score}</span><span class="sm muted" style="margin-top:4px">of 100</span></div></div>
+      <div class="col" style="flex:1 1 380px;min-width:0;gap:12px">
+        <span class="sm b muted" style="letter-spacing:.06em;text-transform:uppercase">Readiness score · AI run ${c.aiRuns}</span>
+        ${c.ai ? `<span class="prov">${provLine(c.ai.p)}</span>` : ''}
+        <h2 style="font-size:26px">${R.verdict}</h2>
+        <p class="muted" style="font-size:15px;line-height:1.6">${R.summary}</p>
+        <div class="row" style="gap:8px">${[['pass','Pass'],['fail','Fail'],['blocked','Blocked'],['na','N/A']].map(k => `<span class="pill ${RS[k[0]][1]}" style="height:28px;font-size:13px"><span class="dot" style="background:${RS[k[0]][2]}"></span>${R.cnt[k[0]]} ${k[1]}</span>`).join('')}</div>
+      </div>
+      <div class="col" style="flex:1 1 260px;min-width:0;gap:12px">${R.parts.map(p => `<div class="col" style="gap:5px"><div class="row s13" style="justify-content:space-between"><span>${p[0]}</span><span class="mono">${p[1]}</span></div><div class="bar"><div style="width:${p[1]}%;background:${scoreColor(p[1])};border-radius:999px"></div></div></div>`).join('')}</div>
+      <div class="banner b-gray s13" style="flex:1 1 100%;align-items:flex-start;flex-wrap:nowrap">${I.info}<span class="muted"><b style="color:var(--tx)">This review is advisory.</b> Verity checks coverage, consistency and evidence against the diff and the test records. It does not re-run tests. The approval decision is yours and is recorded under your name.</span></div>
+    </section>
+    <div class="split">
+      <div class="main" style="gap:20px">
+        <section class="card" style="overflow:hidden"><div class="sec-h"><h3>Coverage</h3><span class="s13 muted">${R.verified} of ${R.mods.length} changed areas verified</span></div>
+          ${R.mods.map(m => `<div class="row" style="padding:14px 20px;border-bottom:1px solid var(--bd);gap:12px 20px"><div class="col" style="flex:1 1 220px;min-width:0;gap:3px"><span class="b">${m.name}</span><span class="sm muted">${m.cases}</span></div><span class="risk r-${m.risk}">${m.risk} risk</span><div class="row" style="flex:0 1 190px;gap:10px;flex-wrap:nowrap"><div class="bar" style="flex:1">${m.total ? `<div style="width:${m.p / m.total * 100}%;background:var(--ps)"></div><div style="width:${m.f / m.total * 100}%;background:var(--fl)"></div><div style="width:${m.b / m.total * 100}%;background:var(--bk)"></div>` : ''}</div><span class="mono sm muted">${m.p + m.f}/${m.total} run</span></div><span class="pill ${m.verified ? 'p-pass' : 'p-blk'}">${m.verified ? 'Verified' : 'Not verified'}</span></div>`).join('')}
+        </section>
+        <section class="card" style="overflow:hidden"><div class="sec-h"><h3>Result consistency</h3><span class="risk ${R.consistency.length ? 'r-Medium' : 'r-Low'}">${R.consistency.length ? plural(R.consistency.length, 'observation') : 'No issues'}</span></div>
+          ${R.consistency.length ? R.consistency.map(x => `<div class="finding"><div class="col" style="flex:1 1 400px;min-width:0;gap:10px"><div class="row" style="gap:10px"><span class="mono s13" style="color:var(--ac)">${x.id}</span><span class="b">${esc(x.title)}</span><span class="pill p-pass">Marked Pass</span></div><div class="cmp"><div><div class="lbl">Expected</div>${esc(x.exp)}</div><div style="background:var(--bkb)"><div class="lbl" style="color:var(--bk)">Actual (tester)</div>${esc(x.r.actual)}</div></div><p style="line-height:1.55"><b>Why flagged:</b> ${esc(x.why || 'The actual result does not fully support a Pass.')}</p></div>${openBtn(x.id)}</div>`).join('') : `<p class="s13 muted" style="padding:18px 20px">Every Pass is supported by its actual result.</p>`}
+        </section>
+        <section class="card" style="overflow:hidden"><div class="sec-h"><h3>Evidence gaps</h3><span class="risk ${R.gaps.length ? 'r-Medium' : 'r-Low'}">${R.gaps.length ? plural(R.gaps.length, 'observation') : 'No gaps'}</span></div>
+          ${R.gaps.length ? R.gaps.map(x => `<div class="finding" style="align-items:center"><div class="col" style="flex:1 1 400px;min-width:0;gap:6px"><div class="row" style="gap:10px"><span class="mono s13" style="color:var(--ac)">${x.id}</span><span class="b">${esc(x.title)}</span><span class="prio P1">P1</span></div><p class="muted" style="line-height:1.55">${esc(x.why || 'Marked Pass with no evidence on a P1 case.')}</p></div>${openBtn(x.id)}</div>`).join('') : `<p class="s13 muted" style="padding:18px 20px">All high-priority passes have evidence.</p>`}
+        </section>
+        <section class="card" style="overflow:hidden"><div class="sec-h"><h3>Failures and blocked items</h3><span class="s13 muted">${R.issues.length ? plural(R.issues.length, 'item') + ' need your sign-off' : 'None'}</span></div>
+          ${R.issues.length ? R.issues.map(x => { const f = x.r.status === 'fail'; return `<div class="finding"><span style="width:4px;align-self:stretch;border-radius:4px;background:${RS[x.r.status][2]}"></span><div class="col" style="flex:1 1 400px;min-width:0;gap:8px"><div class="row" style="gap:10px"><span class="mono s13" style="color:var(--ac)">${x.id}</span><span class="b">${esc(x.title)}</span><span class="pill ${RS[x.r.status][1]}">${RS[x.r.status][0]}</span><span class="sm muted">${x.pri} · ${esc(modOf(c, x.mod).name)}</span></div><p class="s13 muted" style="line-height:1.5"><b style="color:var(--tx)">Tester:</b> ${esc(x.r.actual || 'No actual result entered.')}</p><p style="line-height:1.55"><b>AI explanation:</b> ${esc((c.ai && c.ai.explain[x.id]) || (f ? 'The AI did not explain this failure. Check whether the defect is in the change or in the test data before approving.' : 'The AI did not explain this blocked case. The behavior is unverified.'))}</p></div><div class="col" style="gap:8px;align-items:flex-end">${openBtn(x.id)}${x.r.bug ? `<a href="#" data-act="ado-link" class="mono sm">Bug ${esc(x.r.bug)}</a>` : ''}</div></div>`; }).join('') : `<p class="s13 muted" style="padding:18px 20px">No failed or blocked cases.</p>`}
+        </section>
+      </div>
+      <aside class="side">
+        ${canDecide ? `<section class="card pad col" style="border:2px solid var(--acf);gap:14px"><h3>Approve for client UAT</h3><p class="s13 muted" style="line-height:1.5">Moves the cycle to Approved for UAT, notifies the client success team and sets the verity/uat-ready check on PR #482 in Azure DevOps.</p><button class="btn pri lg" type="button" data-act="open-approve">Approve for Client UAT</button></section>
+        <section class="card pad col" style="gap:14px"><h3>Request changes</h3><p class="s13 muted" style="line-height:1.5">Returns the cycle to ${esc(c.tester)} as In Testing with your comment.</p><button class="btn warn lg" type="button" data-act="open-changes">Request Changes</button></section>` : ''}
+        <section class="card pad col" style="gap:10px"><h3>AI runs</h3><span class="s13 muted" style="line-height:1.5">${plural(c.aiRuns, 'validation run')} on this cycle. Each run is stored with its prompt, reply, provider and who ran it. The score is calculated by Verity from the AI findings, so Azure OpenAI and Claude runs are scored the same way.</span>${S.role === 'dev' && c.status === 'AI Reviewed' ? `<button class="btn sm" type="button" data-act="rerun">${I.refresh}Re-run AI validation</button>` : ''}</section>
+      </aside>
+    </div>
+  </div>`;
+}
+
+function regRows(){
+  const q = S.regQ.trim().toLowerCase();
+  return S.regression.filter(r => (!q || (r.id + ' ' + r.title + ' ' + r.tags.join(' ')).toLowerCase().includes(q)) && (S.regMod === 'All' || r.mod === S.regMod) && (S.regRes === 'All' || r.res === S.regRes));
+}
+function vRegTable(){
+  const rows = regRows();
+  const selN = Object.keys(S.regSel).filter(k => S.regSel[k]).length;
+  const dups = S.regression.filter(r => r.dup && S.regression.some(x => x.id === r.dup));
+  const pairs = []; dups.forEach(r => { if (!pairs.some(p => p.includes(r.id))) pairs.push([r.id, r.dup]); });
+  const priCls = p => `prio ${p}`;
+  const resCls = {Pass:'p-pass', Fail:'p-fail', Blocked:'p-blk', 'Not run':'p-nr'};
+  const C = {P:'var(--ps)', F:'var(--fl)', B:'var(--bk)', N:'var(--bd2)'};
+  const mods = ['All', ...new Set(S.regression.map(r => r.mod))];
+  return `
+    ${pairs.length ? `<div class="banner b-warn"><span style="color:var(--bk)">${I.copy}</span><span style="flex:1 1 400px"><b>AI found ${plural(pairs.length, 'likely duplicate pair')}.</b> ${pairs.map(p => `${p[0]} and ${p[1]}`).join('; ')} test the same behavior.${S.dupRun ? `<br><span class="prov">${provLine(S.dupRun)}</span>` : ''}</span></div>` : ''}
+    <div class="row">
+      <label class="searchbox" style="width:300px">${I.search}<input id="regq" type="search" placeholder="Search regression cases or tags" aria-label="Search regression cases" data-input="regq" value="${esc(S.regQ)}"></label>
+      <label class="row s13" style="gap:6px">Module<select class="input" data-change="regmod" style="height:36px">${mods.map(m => `<option ${S.regMod === m ? 'selected' : ''}>${m}</option>`).join('')}</select></label>
+      <label class="row s13" style="gap:6px">Last result<select class="input" data-change="regres" style="height:36px">${['All','Pass','Fail','Blocked','Not run'].map(m => `<option ${S.regRes === m ? 'selected' : ''}>${m}</option>`).join('')}</select></label>
+      <div class="sp"></div>${S.role !== 'tester' ? `<button class="btn sm" type="button" data-act="ai-dups">${I.spark}Scan for duplicates</button>` : ''}<button class="btn sm" type="button" data-act="reg-export">Export ${selN ? 'selected' : 'all'}</button>
+    </div>
+    ${selN ? `<div class="row" style="padding:10px 14px;border-radius:10px;background:var(--acf);color:#fff"><span class="b">${selN} selected</span><div class="sp"></div>
+      ${['Tag','Archive','Export'].map(a => `<button type="button" data-act="reg-${a.toLowerCase()}" class="btn sm" style="background:transparent;color:#fff;border-color:rgba(255,255,255,.45)">${a}</button>`).join('')}
+      <button type="button" data-act="reg-clear" class="btn sm" style="background:transparent;color:#fff;border:0">Clear</button></div>` : ''}
+    <div class="card scroll"><table class="t" style="min-width:1160px"><thead><tr><th style="width:28px"><input type="checkbox" data-change="reg-all" aria-label="Select all" ${rows.length && rows.every(r => S.regSel[r.id]) ? 'checked' : ''}></th><th>ID</th><th>Title</th><th>Module and tags</th><th>Priority</th><th>Last run</th><th>Last result</th><th>Last 10 runs</th><th>Source cycle</th></tr></thead><tbody>
+      ${rows.length ? rows.map(r => { const dupOk = r.dup && S.regression.some(x => x.id === r.dup); return `<tr class="${S.regSel[r.id] ? 'sel' : ''}">
+        <td><input type="checkbox" data-change="reg-sel" data-id="${r.id}" ${S.regSel[r.id] ? 'checked' : ''} aria-label="Select ${r.id}"></td>
+        <td class="mono sm muted">${r.id}</td>
+        <td><span style="font-weight:500">${esc(r.title)}</span>${dupOk ? `<div class="row sm b" style="gap:6px;margin-top:4px;color:var(--bk)">${I.copy}Possible duplicate of ${r.dup}<button type="button" class="btn sm" style="height:24px;padding:0 8px;font-size:12px" data-act="merge" data-id="${r.id}">Merge</button></div>` : ''}</td>
+        <td><span class="row" style="gap:6px"><span class="tag f">${r.mod}</span>${r.tags.map(t => `<span class="tag" style="border-color:var(--acf);color:var(--ac)">#${esc(t)}</span>`).join('')}</span></td>
+        <td><span class="${priCls(r.pri)}">${r.pri}</span></td>
+        <td class="s13 muted">${r.last}</td>
+        <td><span class="pill ${resCls[r.res]}">${r.res}</span></td>
+        <td><span role="img" aria-label="Last 10 runs" style="display:inline-flex;gap:2px;align-items:flex-end;height:18px">${r.hist.split('').map(h => `<span style="width:6px;border-radius:2px;height:${h === 'P' ? 18 : h === 'N' ? 6 : 12}px;background:${C[h]}"></span>`).join('')}</span></td>
+        <td class="mono sm" style="color:var(--ac)">${r.src}</td></tr>`; }).join('') : `<tr><td colspan="9" class="muted" style="text-align:center;padding:32px">No cases match these filters.</td></tr>`}
+    </tbody></table>
+    <div class="row s13 muted" style="justify-content:space-between;padding:12px 16px;border-top:1px solid var(--bd)"><span>Showing ${rows.length} of ${S.regTotal} cases (prototype loads a sample)</span></div></div>`;
+}
+
+/* ---------- overlays ---------- */
+function vGuide(){
+  const st = S.cycle ? S.cycle.status : null, idx = st ? FLOW.indexOf(st) : -1;
+  const steps = [
+    {t:'Sign in with Microsoft', done:true},
+    {t:'Daniel: pick PR #482 and generate test cases', done:!!S.cycle, role:'dev', h:'cycle/new'},
+    {t:'Daniel: review, edit and assign the cases', done:idx >= 2 || st === 'Changes Requested', role:'dev', h:'cycle/482/review', need:!!S.cycle},
+    {t:'Priya: run the cases and submit for review', done:idx >= 4, role:'tester', h:'cycle/482/run', need:idx >= 2 || st === 'Changes Requested'},
+    {t:'Daniel: run the AI validation, then approve or request changes', done:st === 'Approved for UAT', role:'dev', h:'cycle/482/report', need:idx >= 4 || st === 'Changes Requested'},
+    {t:'Open the audit trail on the cycle', done:S.sawAudit, role:'dev', h:'cycle/482/report', audit:true, need:!!S.cycle},
+    {t:'Optional, Sam (Admin): add a new app from Azure DevOps', done:S.addedApp, role:'admin', h:'apps', need:true}
+  ];
+  const curI = steps.findIndex(s => !s.done);
+  const doneN = steps.filter(s => s.done).length;
+  if (!S.guideOpen) {
+    const nx = steps[curI];
+    return `<div class="guide-min row" style="gap:6px;flex-wrap:nowrap;max-width:calc(100vw - 40px)">
+      ${nx ? `<button type="button" class="btn pri" style="max-width:360px;overflow:hidden" data-act="guide-go" data-i="${curI}" data-r="${nx.role || ''}" data-h="${nx.h || ''}" data-audit="${nx.audit ? 1 : ''}" ${nx.need === false ? 'disabled' : ''} title="Go to the next walkthrough step">${I.map}<span class="ell">Next: ${nx.t}</span></button>` : `<span class="pill p-pass" style="height:38px;padding:0 14px">${I.check}Walkthrough complete</span>`}
+      <button type="button" class="btn" data-act="guide-toggle" aria-expanded="false" aria-label="Show all walkthrough steps">${doneN}/${steps.length}</button>
+    </div>`;
+  }
+  return `<div class="guide" role="region" aria-label="Walkthrough">
+    <button type="button" class="gh" data-act="guide-toggle" aria-expanded="true">${I.map}<span class="b" style="flex:1">Walkthrough · ${doneN}/${steps.length}</span><span style="font-size:12px;opacity:.85">Hide</span></button>
+    <ol>${steps.map((s, i) => `<li class="${s.done ? 'done' : i === curI ? 'cur' : ''}"><button type="button" data-act="guide-go" data-i="${i}" ${i === 0 || (s.need === false) ? 'disabled' : ''} data-r="${s.role || ''}" data-h="${s.h || ''}" data-audit="${s.audit ? 1 : ''}"><span class="n">${s.done ? '✓' : i + 1}</span><span>${s.t}</span></button></li>`).join('')}</ol>
+    <div class="row" style="padding:8px 14px 12px;justify-content:space-between"><span class="sm muted">Click a step to jump there.</span><button type="button" class="btn sm" data-act="reset">Reset demo</button></div>
+  </div>`;
+}
+function vDrawer(){
+  const cats = ['All','Workflow','Test cases','Results','AI runs','Approvals'];
+  const evs = S.audit.filter(e => S.auditFilter === 'All' || e.cat === S.auditFilter);
+  const days = [...new Set(evs.map(e => e.day))];
+  return `<div class="drawer-bg" data-act="close-drawer"></div>
+  <aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="audit-t">
+    <div class="col" style="padding:20px 24px 16px;border-bottom:1px solid var(--bd);gap:14px">
+      <div class="row" style="justify-content:space-between;align-items:flex-start;flex-wrap:nowrap"><div class="col" style="gap:4px"><h2 id="audit-t">Audit trail</h2><span class="s13 muted"><span class="mono" style="color:var(--ac)">PR #482</span> · Claims Portal · ${plural(S.audit.length, 'event')}</span></div>
+      <div class="row" style="gap:4px;flex-wrap:nowrap"><button class="btn sm" type="button" data-act="audit-export">Export CSV</button><button class="ib" type="button" data-act="close-drawer" aria-label="Close audit trail">${I.close}</button></div></div>
+      <div class="row" style="gap:6px">${cats.map(c => `<button type="button" class="chip ${S.auditFilter === c ? 'on' : ''}" data-act="audit-filter" data-v="${c}">${c}</button>`).join('')}</div>
+    </div>
+    <div style="flex:1;overflow:auto;padding:8px 24px 24px">
+      ${evs.length ? days.map(d => `<div class="sm b muted" style="letter-spacing:.05em;text-transform:uppercase;padding:16px 0 8px">${d}</div><ol style="list-style:none;margin:0;padding:0">${evs.filter(e => e.day === d).map(e => `<li class="ev"><div class="col" style="align-items:center;gap:0;flex:none">${avatar(e.who)}<span class="rail"></span></div><div class="col" style="flex:1;min-width:0;padding-bottom:18px;gap:4px"><div class="row" style="justify-content:space-between;gap:8px;flex-wrap:nowrap"><span class="b">${USERS[e.who].name}</span><span class="mono sm muted">${e.time}</span></div><span style="line-height:1.5">${esc(e.what)}</span>${e.detail ? `<span class="s13 muted" style="line-height:1.5">${esc(e.detail)}</span>` : ''}${e.tag ? `<span class="pill ${e.tagCls}" style="align-self:flex-start">${esc(e.tag)}</span>` : ''}</div></li>`).join('')}</ol>`).join('') : `<p class="muted" style="padding:24px 0">No events yet. Actions on the cycle appear here as they happen.</p>`}
+    </div>
+  </aside>`;
+}
+function modalWrap(title, sub, body, foot, wide){
+  return `<div class="modal-bg" data-act="bg-close"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-t" ${wide ? 'style="max-width:720px"' : ''}>
+    <div class="mh"><div class="col" style="gap:6px"><h2 id="m-t">${title}</h2>${sub ? `<p class="muted" style="line-height:1.5">${sub}</p>` : ''}</div><button class="ib" type="button" data-act="close-modal" aria-label="Close">${I.close}</button></div>
+    <div class="mb">${body}</div><div class="mf">${foot}</div></div></div>`;
+}
+function vModal(){
+  const m = S.modal, c = S.cycle;
+  if (m.type === 'aichoose') {
+    const T = AI_TASKS[m.task];
+    return modalWrap(`Run AI: ${T.name}`, 'Choose where this step runs. Admins can set a default for each AI step in app settings.',
+      `<button type="button" class="aiopt" data-act="ai-azure" data-task="${m.task}"><span class="aio-i">${I.cloud}</span><span class="col" style="gap:4px;flex:1"><span class="b">Azure OpenAI</span><span class="s13 muted" style="line-height:1.5">Automatic. Verity sends the context to your Azure OpenAI deployment and imports the result, usually in under a minute.</span></span></button>
+      <button type="button" class="aiopt" data-act="ai-claude" data-task="${m.task}"><span class="aio-i">${I.chat}</span><span class="col" style="gap:4px;flex:1"><span class="b">Run in Claude</span><span class="s13 muted" style="line-height:1.5">Manual. Download a prompt package, run it in your own Claude, then paste the JSON reply back. Verity checks it before importing. Verity itself sends nothing to an AI service.</span></span></button>
+      ${m.task === 'bug' ? `<button type="button" class="aiopt" data-act="bug-manual"><span class="aio-i">${I.edit}</span><span class="col" style="gap:4px;flex:1"><span class="b">Write it myself</span><span class="s13 muted">Open the bug form with the case details filled in.</span></span></button>` : ''}`,
+      `<button class="btn" type="button" data-act="close-modal">Cancel</button>`);
+  }
+  if (m.type === 'claude') {
+    const T = AI_TASKS[m.task];
+    const prompt = buildPrompt(m.task, m.runId);
+    return modalWrap('Run in Claude', `${T.name} · run <span class="mono">${m.runId}</span>`,
+      `<ol class="hand">
+        <li><span class="hn">1</span><div class="col" style="gap:8px;flex:1;min-width:0"><span class="b">Get the prompt package</span><span class="s13 muted" style="line-height:1.5">One Markdown file with the instructions, the required JSON format and the context: ${(prompt.length / 1024).toFixed(1)} KB, about ${Math.round(prompt.length / 4).toLocaleString()} tokens. It contains code and test data, so use your company Claude workspace only.</span>
+          <div class="row" style="gap:8px"><button class="btn sm ${m.downloaded ? '' : 'pri'}" type="button" data-act="cl-download">${I.download}Download prompt (.md)</button><button class="btn sm" type="button" data-act="cl-copy">${I.dup}Copy to clipboard</button>${m.downloaded ? `<span class="pill p-pass">${I.check}Downloaded</span>` : ''}</div></div></li>
+        <li><span class="hn">2</span><div class="col" style="gap:8px;flex:1;min-width:0"><span class="b">Run it in Claude</span><span class="s13 muted" style="line-height:1.5">Start a new chat, attach the file (or paste the prompt) and send. Claude replies with one JSON block. If your team has a shared Verity project in Claude, run it there so everyone uses the same instructions.</span>
+          <div class="row"><a class="btn sm" href="https://claude.ai/new" target="_blank" rel="noopener">Open Claude ${I.ext}</a></div></div></li>
+        <li><span class="hn">3</span><div class="col" style="gap:8px;flex:1;min-width:0"><label for="cl-text" class="b">Paste Claude’s reply</label>
+          <textarea id="cl-text" class="input mono" rows="7" data-input="cl-text" placeholder="Paste the whole reply here. Verity finds the JSON block, checks the run ID and the format, then imports it." style="font-size:12px">${esc(m.text)}</textarea>
+          <div class="row" style="gap:8px"><label class="btn sm" style="cursor:pointer">${I.upload}Upload reply file<input type="file" accept=".json,.md,.txt" data-change="cl-file" style="display:none"></label><button class="btn sm" type="button" data-act="cl-sample">Prototype: paste a sample reply</button></div>
+          ${m.errors ? `<div class="banner b-warn s13" style="align-items:flex-start;flex-direction:column;gap:6px"><b>Not imported. Fix these and try again:</b><ul style="margin:0;padding-left:18px">${m.errors.map(e => `<li>${esc(e)}</li>`).join('')}</ul></div>` : ''}
+        </div></li>
+      </ol>`,
+      `<button class="btn" type="button" data-act="close-modal">Cancel</button><button class="btn pri" type="button" data-act="cl-import">Check and import</button>`, true);
+  }
+  if (m.type === 'addapp') {
+    const projects = Object.keys(ADO[m.org]);
+    const repos = ADO[m.org][m.proj] || [];
+    const linked = r => S.apps.some(a => a.path === `${m.org} / ${m.proj} / ${r}`);
+    return modalWrap('Add app from Azure DevOps', 'Pick the repository Verity should read pull requests from. You only see repositories you can access.',
+      `<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
+        <label class="f">Organization<select class="input" data-change="aa-org">${Object.keys(ADO).map(o => `<option ${o === m.org ? 'selected' : ''}>${o}</option>`).join('')}</select></label>
+        <label class="f">Project<select class="input" data-change="aa-proj">${projects.map(p => `<option ${p === m.proj ? 'selected' : ''}>${p}</option>`).join('')}</select></label></div>
+      <div class="col" style="gap:8px"><div class="row" style="justify-content:space-between"><span class="s13" style="font-weight:500">Repository</span><span class="sm muted">${plural(repos.length, 'repository')}</span></div>
+        <div style="border:1px solid var(--bd);border-radius:10px;overflow:hidden">${repos.map(r => `<button type="button" class="repo ${m.repo === r[0] ? 'on' : ''}" data-act="aa-repo" data-r="${r[0]}" data-b="${r[2]}" ${linked(r[0]) ? 'disabled' : ''}><span class="radio"></span><span class="col" style="flex:1;gap:2px;min-width:0"><span class="mono" style="font-weight:500">${r[0]}</span><span class="sm muted">${r[1]} · default branch ${r[2]}</span></span>${linked(r[0]) ? '<span class="pill p-nr">Already linked</span>' : ''}</button>`).join('')}</div></div>
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
+        <label class="f">App name<input id="aa-name" class="input" data-input="aa-name" value="${esc(m.name)}" placeholder="Pick a repository"></label>
+        <label class="f">Target branch for cycles<input class="input mono" value="${esc(m.branch)}" readonly></label></div>`,
+      `<button class="btn" type="button" data-act="close-modal">Cancel</button><button class="btn pri" type="button" data-act="aa-link" ${m.repo ? '' : 'disabled'}>Link app</button>`);
+  }
+  if (m.type === 'case') {
+    const t = m.id ? c.cases.find(x => x.id === m.id) : {title:'', type:'Functional', pri:'P2', file:'', pre:'', steps:[], exp:'', mod:'settle'};
+    return modalWrap(m.id ? 'Edit ' + m.id : 'Add test case manually', m.id ? 'Changes are tracked in the audit trail.' : 'Manual cases are reviewed and assigned like generated ones.',
+      `<label class="f">Title<input id="c-title" class="input" value="${esc(t.title)}"></label>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">
+        <label class="f">Type<select id="c-type" class="input">${['Functional','Edge case','Negative','Regression'].map(x => `<option ${t.type === x ? 'selected' : ''}>${x}</option>`).join('')}</select></label>
+        <label class="f">Priority<select id="c-pri" class="input">${['P1','P2','P3'].map(x => `<option ${t.pri === x ? 'selected' : ''}>${x}</option>`).join('')}</select></label>
+        <label class="f">Module<select id="c-mod" class="input">${MODS.map(x => `<option value="${x.id}" ${t.mod === x.id ? 'selected' : ''}>${x.name}</option>`).join('')}</select></label></div>
+      <label class="f">Linked file or module<input id="c-file" class="input mono" value="${esc(t.file)}"></label>
+      <label class="f">Preconditions<textarea id="c-pre" class="input" rows="2">${esc(t.pre)}</textarea></label>
+      <label class="f">Steps (one per line)<textarea id="c-steps" class="input" rows="4">${esc(t.steps.join('\n'))}</textarea></label>
+      <label class="f">Expected result<textarea id="c-exp" class="input" rows="2">${esc(t.exp)}</textarea></label>`,
+      `<button class="btn" type="button" data-act="close-modal">Cancel</button><button class="btn pri" type="button" data-act="case-save">${m.id ? 'Save changes' : 'Add test case'}</button>`);
+  }
+  if (m.type === 'bug') {
+    const t = c.cases[S.runIdx];
+    const dr = m.draft;
+    return modalWrap('Create bug in Azure DevOps', 'Verity creates the work item in contoso-health / Claims and links it to PR #482.' + (dr ? `<br><span class="prov">Drafted by AI: ${provLine(m.p)}. Review before creating.</span>` : ''),
+      `<label class="f">Title<input id="b-title" class="input" value="${esc(dr ? dr.title : t.id + ' failed: ' + t.title)}"></label>
+      <label class="f">Repro steps<textarea class="input" rows="6">${esc(dr ? dr.repro_steps : 'Preconditions: ' + t.pre + '\n' + t.steps.map((s, i) => (i + 1) + '. ' + s).join('\n') + '\nExpected: ' + t.exp + '\nActual: ' + (t.r.actual || '(not entered yet)'))}</textarea></label>
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px"><label class="f">Severity<select class="input">${['1 - Critical','2 - High','3 - Medium','4 - Low'].map(s => `<option ${(dr ? dr.severity : '3 - Medium') === s ? 'selected' : ''}>${s}</option>`).join('')}</select></label><label class="f">Area path<input class="input" value="${esc(dr && dr.area_path ? dr.area_path : 'Claims\\Settlement')}"></label></div>
+      <span class="s13 muted">${t.r.ev.length ? plural(t.r.ev.length, 'evidence file') + ' will be attached.' : 'No evidence attached yet.'}</span>`,
+      `<button class="btn" type="button" data-act="close-modal">Cancel</button><button class="btn pri" type="button" data-act="bug-save">Create bug</button>`);
+  }
+  if (m.type === 'approve') {
+    const R = analyze(c);
+    const items = [R.obs ? plural(R.obs, 'observation') : '', R.cnt.fail ? plural(R.cnt.fail, 'failure') : '', R.cnt.blocked ? plural(R.cnt.blocked, 'blocked case') : ''].filter(Boolean);
+    return modalWrap('Approve PR #482 for client UAT?', `Readiness ${R.score} / 100 · ${R.verdict}.`,
+      `<label class="f">Note for the client (optional)<textarea id="ap-note" class="input" rows="3" placeholder="e.g. Rounding of sub-cent amounts is a known issue, fix planned in 2026.11.1"></textarea></label>
+      ${items.length ? `<label class="row s13" style="gap:10px;align-items:flex-start;flex-wrap:nowrap;line-height:1.45"><input type="checkbox" data-change="ap-ok" ${m.ok ? 'checked' : ''} style="margin-top:1px">I reviewed the ${items.join(', ')} and accept them for UAT.</label>` : ''}
+      <div class="banner b-gray s13">${I.info}<span>Your approval is recorded in the audit trail and posted to the pull request in Azure DevOps.</span></div>`,
+      `<button class="btn" type="button" data-act="close-modal">Cancel</button><button class="btn pri" type="button" data-act="approve-save" ${items.length && !m.ok ? 'disabled' : ''}>Approve for Client UAT</button>`);
+  }
+  if (m.type === 'changes') {
+    const R = analyze(c);
+    const parts = [];
+    R.gaps.forEach(x => parts.push(`attach evidence for ${x.id}`));
+    R.consistency.forEach(x => parts.push(`re-check ${x.id}, the actual result does not fully support Pass`));
+    R.issues.filter(x => x.r.status === 'blocked').forEach(x => parts.push(`try ${x.id} again in staging`));
+    const pre = parts.length ? 'Please ' + parts.join('; ') + '.' : '';
+    return modalWrap('Request changes', `The cycle goes back to ${esc(c.tester)} as In Testing with your comment.`,
+      `<label class="f">Comment to tester<textarea id="ch-c" class="input" rows="5">${esc(pre)}</textarea></label>`,
+      `<button class="btn" type="button" data-act="close-modal">Cancel</button><button class="btn warn" type="button" data-act="changes-save">Request Changes</button>`);
+  }
+  if (m.type === 'tag') return modalWrap('Tag selected cases', 'Tags help filter and build targeted regression runs.', `<label class="f">Tag<input id="tag-v" class="input" placeholder="e.g. refunds" value="refunds"></label>`, `<button class="btn" type="button" data-act="close-modal">Cancel</button><button class="btn pri" type="button" data-act="tag-save">Add tag</button>`);
+  if (m.type === 'merge') {
+    const a = S.regression.find(r => r.id === m.id), b = S.regression.find(r => r.id === a.dup);
+    const keep = a.hist.replace(/N/g, '').length >= b.hist.replace(/N/g, '').length ? a : b, drop = keep === a ? b : a;
+    m.keep = keep.id; m.drop = drop.id;
+    return modalWrap('Merge duplicate regression cases', 'Verity keeps the case with the longer run history and archives the other. Run history and source links are combined.',
+      `<div class="cmp"><div style="border:2px solid var(--ps)"><div class="lbl" style="color:var(--ps)">Keep</div><span class="mono sm">${keep.id}</span><div class="b">${esc(keep.title)}</div></div><div><div class="lbl">Archive</div><span class="mono sm">${drop.id}</span><div class="b">${esc(drop.title)}</div></div></div>`,
+      `<button class="btn" type="button" data-act="close-modal">Cancel</button><button class="btn pri" type="button" data-act="merge-save">Merge</button>`);
+  }
+  return '';
+}
+function vBusy(){
+  const b = S.busy;
+  return `<div class="busy" role="alertdialog" aria-live="assertive"><div class="box"><div class="row" style="gap:12px;flex-wrap:nowrap"><div class="spin"></div><h3>${esc(b.msg)}</h3></div>
+    ${b.steps ? `<ol style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px">${b.steps.map((s, i) => `<li class="row s13" style="gap:10px;flex-wrap:nowrap;color:${i < b.i ? 'var(--tx)' : 'var(--mu)'}"><span style="width:18px;display:inline-grid;color:${i < b.i ? 'var(--ps)' : 'var(--mu)'}">${i < b.i ? I.check : i === b.i ? '•' : ''}</span>${s}</li>`).join('')}</ol>` : ''}</div></div>`;
+}
+
+/* ---------- Gen AI: Azure OpenAI or Claude handoff ---------- */
+const AI_TASKS = {
+  gen:{name:'Generate test cases', key:'generate_test_cases', where:'New test cycle → Generate Test Cases with AI', who:'Senior Developer'},
+  regen:{name:'Regenerate test cases', key:'regenerate_test_cases', where:'Test case review → Regenerate', who:'Senior Developer'},
+  validate:{name:'AI validation report', key:'validate_results', where:'After the tester submits → AI report', who:'Senior Developer'},
+  bug:{name:'Draft bug report', key:'draft_bug', where:'Execution → Create bug', who:'Tester'},
+  dups:{name:'Find duplicate regression cases', key:'find_duplicates', where:'Regression suite → Scan for duplicates', who:'Senior Developer'}
+};
+const MODE_LABEL = {ask:'Ask each time', azure:'Azure OpenAI only', claude:'Run in Claude only'};
+const ENUM = {type:['Functional','Edge case','Negative','Regression'], priority:['P1','P2','P3'], risk:['High','Medium','Low'], source:['diff','notes','reg']};
+function getMods(c){ return c && c.mods ? c.mods : MODS; }
+function modOf(c, id){ return getMods(c).find(m => m.id === id) || {id, name:id, risk:'Low', desc:''}; }
+function newRunId(task){ return 'VR-' + (task === 'dups' ? 'CP' : '482') + '-' + task.toUpperCase() + '-' + String(S.runSeq++).padStart(3, '0'); }
+function provLine(p){ if (!p) return ''; return p.prov === 'azure' ? `${I.cloud}Azure OpenAI · run <span class="mono">${p.runId}</span> · ${p.at}` : `${I.chat}Run in Claude by ${USERS[p.by].name} · imported ${p.at} · run <span class="mono">${p.runId}</span>`; }
+function aiStart(task){
+  const m = S.aiMode[task];
+  if (m === 'azure') return aiAzure(task);
+  if (m === 'claude') return aiClaude(task);
+  S.modal = {type:'aichoose', task}; renderOverlay();
+}
+const AZ_STEPS = {
+  gen:['Reading diffs from Azure DevOps', 'Reading AI commit notes and linked work items', 'Sending to Azure OpenAI', 'Checking the response format', 'Matching against the regression suite'],
+  regen:['Re-reading the diff', 'Sending to Azure OpenAI', 'Keeping your edited cases'],
+  validate:['Collecting results and evidence', 'Sending to Azure OpenAI', 'Checking the response format'],
+  bug:['Collecting the failed case and evidence', 'Sending to Azure OpenAI'],
+  dups:['Loading the regression suite', 'Sending to Azure OpenAI', 'Checking the response format']
+};
+function aiAzure(task){
+  const runId = newRunId(task); S.modal = null;
+  runSteps('Azure OpenAI · ' + AI_TASKS[task].name, AZ_STEPS[task], 400, () => AI_APPLY[task](sampleResp(task, runId), {prov:'azure', runId, by:'ai', at:now()}));
+}
+function aiClaude(task){ S.modal = {type:'claude', task, runId:newRunId(task), text:'', errors:null}; renderOverlay(); }
+
+function heur(c){
+  const cs = c.cases;
+  return {
+    result_consistency: cs.filter(x => x.r.status === 'pass' && /moment|briefly|flicker|timeout|intermittent|but /i.test(x.r.actual)).map(x => ({case_id:x.id, reason:'The actual result describes behavior the expected result does not allow for, even if it settled later. A client user could see it. Confirm whether this is acceptable or should be a Fail.'})),
+    evidence_gaps: cs.filter(x => x.r.status === 'pass' && x.pri === 'P1' && !x.r.ev.length).map(x => ({case_id:x.id, reason:`Marked Pass with no screenshot or log on a P1 case in ${modOf(c, x.mod).name.toLowerCase()} (${modOf(c, x.mod).risk.toLowerCase()} risk).`})),
+    failures_and_blocked: cs.filter(x => x.r.status === 'fail' || x.r.status === 'blocked').map(x => ({case_id:x.id, explanation:AIX[x.id] || (x.r.status === 'fail' ? 'The actual result does not match the expected result in an area this PR changed. Check whether the defect is in the change or in the test data before approving.' : 'The case could not run, so this behavior is unverified. Run it in another environment or accept the risk explicitly.')}))
+  };
+}
+function sampleResp(task, runId){
+  const base = {run_id:runId, task:AI_TASKS[task].key, schema_version:'1.0'}, c = S.cycle;
+  if (task === 'gen' || task === 'regen') return Object.assign(base, {
+    change_summary:'Adjusters can now refund part of a settled claim instead of reversing the whole settlement. Refunds are stored in a new ledger, validated against the remaining balance, blocked on closed claims, and sent to Billing as an event. The settlement summary shows refunded and remaining amounts.',
+    modules:MODS.map(m => ({id:m.id, name:m.name, risk:m.risk, description:m.desc})),
+    test_cases:TPL.map(t => ({title:t[1], type:t[2], priority:t[3], module:t[6], linked_file:t[4], source:t[5], preconditions:t[7], steps:t[8], expected_result:t[9]})),
+    regression_suggestions:SUGG.map(s => ({regression_id:s.reg, reason:s.reason}))
+  });
+  if (task === 'validate') { const h = heur(c); return Object.assign(base, {summary:'High-risk refund logic and validation were tested. Review the observations and the failed and blocked cases before approving.'}, h); }
+  if (task === 'bug') { const t = c.cases[S.runIdx]; return Object.assign(base, {title:`${t.id} failed: ${t.title}`.slice(0, 90), severity:t.pri === 'P1' ? '2 - High' : '3 - Medium', area_path:'Claims\\Settlement', repro_steps:'Preconditions: ' + t.pre + '\n' + t.steps.map((s, i) => (i + 1) + '. ' + s).join('\n') + '\nExpected: ' + t.exp + '\nActual: ' + (t.r.actual || 'See attached evidence.')}); }
+  if (task === 'dups') return Object.assign(base, {pairs:[{a:'REG-118', b:'REG-131', reason:'Both settle a claim for the full amount end to end and check the same outcome.'}, {a:'REG-201', b:'REG-209', reason:'Both check that an adjuster cannot edit a closed claim.'}].filter(p => S.regression.some(r => r.id === p.a) && S.regression.some(r => r.id === p.b))});
+}
+const PROMPT_ROLE = {
+  gen:'You are a senior QA engineer. Read the pull request below and (1) summarize what changed in plain language, (2) group the changes by module with a risk level (High, Medium or Low) and a one-sentence reason, (3) write test cases a manual tester can run (functional, edge case, negative and regression), each with preconditions, numbered steps and one expected result, and (4) pick related cases from the existing regression suite with a reason for each. Prefer fewer, sharper cases over many vague ones. Every High-risk module needs at least one P1 case.',
+  regen:'You are a senior QA engineer. Regenerate the full list of test cases for the pull request below, following the same rules as a first generation. The reviewer has already edited or added some cases (listed under Current cases). Verity keeps those automatically, so focus on gaps and do not repeat them.',
+  validate:'You are reviewing a tester’s results before a release goes to the client for UAT. You do not re-run tests. Check (1) result consistency: cases marked Pass whose actual result does not fully support the expected result, (2) evidence gaps: P1 cases marked Pass with no evidence, and (3) for every Fail or Blocked case, the likely cause and the risk of approving anyway, citing commits or modules where relevant. Coverage and the readiness score are calculated by Verity from the results, so do not output a score.',
+  bug:'Write an Azure DevOps bug for the failed test case below. Title under 90 characters. Repro steps as numbered lines, then Expected and Actual. Choose a severity: 1 - Critical, 2 - High, 3 - Medium or 4 - Low.',
+  dups:'Find regression cases that test the same behavior and should be merged. Only flag a pair when one case would be redundant if the other runs. Give a one-sentence reason for each pair.'
+};
+function schemaOf(task, runId){
+  const base = {run_id:runId, task:AI_TASKS[task].key, schema_version:'1.0'};
+  if (task === 'gen' || task === 'regen') return Object.assign(base, {change_summary:'Plain-language summary, 2 to 4 sentences', modules:[{id:'short-id', name:'Module name', risk:'High | Medium | Low', description:'Why this risk level'}], test_cases:[{title:'...', type:'Functional | Edge case | Negative | Regression', priority:'P1 | P2 | P3', module:'an id from modules', linked_file:'File or module name', source:'diff | notes | reg', preconditions:'...', steps:['First step', 'Second step'], expected_result:'...'}], regression_suggestions:[{regression_id:'REG-000', reason:'Why it is related'}]});
+  if (task === 'validate') return Object.assign(base, {summary:'One or two sentences for the reviewer', result_consistency:[{case_id:'TC-00', reason:'...'}], evidence_gaps:[{case_id:'TC-00', reason:'...'}], failures_and_blocked:[{case_id:'TC-00', explanation:'...'}]});
+  if (task === 'bug') return Object.assign(base, {title:'...', severity:'1 - Critical | 2 - High | 3 - Medium | 4 - Low', area_path:'Claims\\Settlement', repro_steps:'1. ...\n2. ...\nExpected: ...\nActual: ...'});
+  return Object.assign(base, {pairs:[{a:'REG-000', b:'REG-000', reason:'...'}]});
+}
+function promptContext(task){
+  const c = S.cycle, L = [];
+  if (task === 'gen' || task === 'regen') {
+    const p = PRS[0];
+    L.push('### Pull request', `PR #482: ${p.title}`, `Authors: Marcus Lee, Anika Rao · Branch ${p.branch} → main`, '',
+      '### Linked work items',
+      '- AB#1290 Partial refunds on settled claims. Acceptance criteria: an adjuster can refund any amount up to the remaining balance; a reason is required; refunds are blocked on closed claims.',
+      '- AB#1294 Billing receives refund events. Acceptance criteria: a RefundIssued event is published for every refund.', '',
+      '### Commits in this cycle');
+    p.commits.filter(x => S.sel[x[0]] !== false).forEach(x => { L.push(`- ${x[0]} ${x[1]} (${x[2]}, ${x[4]} files)`); L.push(x[3] ? `  AI commit note: ${x[3]}` : '  AI commit note: none'); });
+    L.push('', '### Changed files', '| Status | File | Added | Removed |', '|---|---|---|---|');
+    FILES.forEach(f => L.push(`| ${f[0] === 'A' ? 'Added' : 'Modified'} | ${f[1]} | ${f[2]} | ${f[3]} |`));
+    L.push('', '### Diffs', '(Prototype export: the real app includes the unified diff of every changed file here. One file is shown as an example.)', '',
+      '```diff', '--- a/src/Claims.Settlement/RefundValidator.cs', '+++ b/src/Claims.Settlement/RefundValidator.cs', '@@ -18,6 +18,15 @@ public class RefundValidator',
+      '+    public ValidationResult Validate(Claim claim, decimal amount)', '+    {', '+        if (amount <= 0) return ValidationResult.Fail("Enter an amount greater than $0.00");',
+      '+        var remaining = claim.SettledAmount - _ledger.TotalRefunded(claim.Id);', '+        if (amount > remaining) return ValidationResult.Fail($"Refund cannot exceed the remaining balance of {remaining:C}");',
+      '+        amount = Math.Truncate(amount * 100) / 100;', '+        return ValidationResult.Ok(amount);', '+    }', '```', '',
+      '### Existing regression suite (candidates)');
+    S.regression.forEach(r => L.push(`- ${r.id} ${r.title} (${r.mod}, ${r.pri}, last result ${r.res})`));
+    if (task === 'regen' && c) { L.push('', '### Current cases (Verity keeps the edited and manual ones)'); c.cases.forEach(t => L.push(`- ${t.id} ${t.title}${t.edited ? ' [edited by reviewer]' : t.src === 'manual' ? ' [added manually]' : ''}`)); }
+  } else if (task === 'validate') {
+    L.push('### Pull request', 'PR #482: Add partial refund support to claim settlement', '', '### Modules and risk');
+    getMods(c).forEach(m => L.push(`- ${m.id}: ${m.name} (${m.risk} risk). ${m.desc}`));
+    L.push('', '### Commits'); PRS[0].commits.forEach(x => L.push(`- ${x[0]} ${x[1]}${x[3] ? ' · AI note: ' + x[3] : ' · no AI note'}`));
+    L.push('', '### Test cases and results');
+    c.cases.forEach(t => {
+      L.push('', `#### ${t.id} · ${t.pri} · ${t.type} · module ${t.mod}`, `Title: ${t.title}`, `Preconditions: ${t.pre}`, 'Steps:');
+      t.steps.forEach((s, i) => L.push(`  ${i + 1}. ${s}`));
+      L.push(`Expected: ${t.exp}`, `Result: ${t.r.status ? RS[t.r.status][0] : 'Not run'}`, `Actual: ${t.r.actual || '(empty)'}`, `Notes: ${t.r.notes || '(none)'}`, `Evidence: ${t.r.ev.length ? t.r.ev.join(', ') : 'none'}`, `Linked bug: ${t.r.bug || 'none'}`);
+    });
+  } else if (task === 'bug') {
+    const t = c.cases[S.runIdx];
+    L.push(`### Failed case ${t.id}`, `Title: ${t.title}`, `Priority: ${t.pri} · Module: ${modOf(c, t.mod).name} · File: ${t.file}`, `Preconditions: ${t.pre}`, 'Steps:');
+    t.steps.forEach((s, i) => L.push(`  ${i + 1}. ${s}`));
+    L.push(`Expected: ${t.exp}`, `Actual: ${t.r.actual || '(not entered)'}`, `Tester notes: ${t.r.notes || '(none)'}`, `Evidence: ${t.r.ev.length ? t.r.ev.join(', ') : 'none'}`, '', 'Pull request: PR #482, branch feature/partial-refunds');
+  } else {
+    L.push('### Regression suite: Claims Portal', '| ID | Title | Module | Priority | Last result | Source |', '|---|---|---|---|---|---|');
+    S.regression.forEach(r => L.push(`| ${r.id} | ${r.title} | ${r.mod} | ${r.pri} | ${r.res} | ${r.src} |`));
+  }
+  return L;
+}
+function buildPrompt(task, runId){
+  const T = AI_TASKS[task];
+  const L = [`# Verity AI task: ${T.name}`, '',
+    '> How to use: attach this file to a new Claude chat (or paste it) and send it. Copy Claude’s whole reply and paste it into Verity under step 3.', '',
+    `- run_id: ${runId}`, `- task: ${T.key}`, '- schema_version: 1.0', '- app: Claims Portal (contoso-health / Claims / claims-portal-web)', `- prepared by: ${USERS[S.role].name} at ${new Date().toISOString()}`, '',
+    '## Your role', PROMPT_ROLE[task], '',
+    '## Output rules',
+    '- Reply with exactly one JSON object inside a single ```json code block. No other text.',
+    '- Copy run_id and task exactly as written above. Verity rejects replies whose run_id does not match.',
+    '- Use only files, modules, case IDs and regression IDs that appear in the context. Do not invent them.',
+    '- If the context is not enough to judge something, say so in the text field instead of guessing.',
+    '- Use plain language and short sentences.', '',
+    '## Required output format', '```json', JSON.stringify(schemaOf(task, runId), null, 2), '```', '',
+    '## Context'].concat(promptContext(task));
+  return L.join('\n');
+}
+const CHECK = {
+  gen(o, e){
+    if (!o.change_summary) e.push('change_summary is missing.');
+    if (!Array.isArray(o.modules) || !o.modules.length) e.push('modules must be a non-empty list.');
+    else o.modules.forEach((m, i) => { if (!m.id || !m.name) e.push(`modules[${i}] needs an id and a name.`); if (!ENUM.risk.includes(m.risk)) e.push(`modules[${i}].risk must be High, Medium or Low.`); });
+    if (!Array.isArray(o.test_cases) || !o.test_cases.length) e.push('test_cases must be a non-empty list.');
+    else o.test_cases.forEach((t, i) => {
+      const p = `test_cases[${i}]`;
+      if (!t.title) e.push(p + '.title is missing.');
+      if (!ENUM.type.includes(t.type)) e.push(`${p}.type must be one of: ${ENUM.type.join(', ')}.`);
+      if (!ENUM.priority.includes(t.priority)) e.push(p + '.priority must be P1, P2 or P3.');
+      if (!Array.isArray(t.steps) || !t.steps.length) e.push(p + '.steps must be a non-empty list.');
+      if (!t.expected_result) e.push(p + '.expected_result is missing.');
+      if (Array.isArray(o.modules) && !o.modules.some(m => m.id === t.module)) e.push(`${p}.module "${t.module}" is not one of the modules.`);
+    });
+  },
+  validate(o, e){
+    ['result_consistency', 'evidence_gaps', 'failures_and_blocked'].forEach(k => {
+      if (!Array.isArray(o[k])) e.push(k + ' must be a list (use [] when empty).');
+      else o[k].forEach((x, i) => { if (!S.cycle.cases.some(t => t.id === x.case_id)) e.push(`${k}[${i}].case_id "${x.case_id}" is not a case in this cycle.`); });
+    });
+  },
+  bug(o, e){ if (!o.title) e.push('title is missing.'); if (!o.repro_steps) e.push('repro_steps is missing.'); },
+  dups(o, e){ if (!Array.isArray(o.pairs)) e.push('pairs must be a list.'); else o.pairs.forEach((p, i) => [p.a, p.b].forEach(id => { if (!S.regression.some(r => r.id === id)) e.push(`pairs[${i}] refers to ${id}, which is not in the suite.`); })); }
+};
+CHECK.regen = CHECK.gen;
+function parseResp(task, runId, text){
+  const s = text.indexOf('{'), e = text.lastIndexOf('}');
+  if (s < 0 || e < s) return {errors:['No JSON found. Paste Claude’s whole reply, including the json block.']};
+  let o; try { o = JSON.parse(text.slice(s, e + 1)); } catch (err) { return {errors:['The JSON could not be read: ' + err.message]}; }
+  const errs = [];
+  if (o.run_id !== runId) errs.push(`run_id is "${o.run_id || 'missing'}" but this run is ${runId}. The reply may be from another run or an older prompt.`);
+  if (o.task !== AI_TASKS[task].key) errs.push(`task is "${o.task || 'missing'}" but should be ${AI_TASKS[task].key}.`);
+  CHECK[task](o, errs);
+  return {o, errors:errs.slice(0, 8)};
+}
+function aiLog(p, what, detail, flowTag, cat){
+  const prov = p.prov === 'azure' ? 'Azure OpenAI' : 'Run in Claude';
+  log(p.prov === 'azure' ? 'ai' : p.by, what, (detail ? detail + ' · ' : '') + prov + ' · run ' + p.runId, flowTag || prov, flowTag ? 'p-ac' : (p.prov === 'azure' ? 'p-ac' : 'p-out'), cat || 'AI runs');
+}
+function casesFrom(o){ return o.test_cases.map((t, i) => ({id:'TC-' + String(i + 1).padStart(2, '0'), title:String(t.title), type:t.type, pri:t.priority, file:t.linked_file || '', src:ENUM.source.includes(t.source) ? t.source : 'diff', mod:t.module, pre:t.preconditions || '', steps:t.steps.map(String), exp:String(t.expected_result), edited:false, promoted:false, r:newResult()})); }
+function modsFrom(o){ return o.modules.map(m => ({id:m.id, name:m.name, risk:m.risk, desc:m.description || ''})); }
+const AI_APPLY = {
+  gen(o, p){
+    const commits = PRS[0].commits.filter(c => S.sel[c[0]]), files = commits.reduce((s, c) => s + c[4], 0);
+    S.cycle = {status:'Tests Generated', cases:casesFrom(o), mods:modsFrom(o), summary:o.change_summary, suggest:(o.regression_suggestions || []).map(s => s.regression_id), genAi:p, tester:'', due:'', dueLabel:'', aiRuns:0, ai:null, changeComment:'', approvedNote:'', approvedAt:''};
+    S.suggAdded = {}; S.modal = null;
+    log('dev', 'Created the cycle and pulled PR #482 from Azure DevOps', `${plural(commits.length, 'commit')} · ${files} files`, 'Draft', 'p-nr', 'Workflow');
+    aiLog(p, p.prov === 'azure' ? `Generated ${plural(S.cycle.cases.length, 'test case')}` : `Imported ${plural(S.cycle.cases.length, 'test case')} generated in Claude`, '', 'Draft → Tests Generated');
+    toast(`${plural(S.cycle.cases.length, 'test case')} drafted. Review and edit them before assigning.`);
+    go('cycle/482/review');
+  },
+  regen(o, p){
+    const c = S.cycle;
+    const keep = c.cases.filter(t => t.edited || t.src === 'manual' || Object.values(S.suggAdded).includes(t.id));
+    const keepIds = keep.map(t => t.id);
+    const out = casesFrom(o).map(f => keepIds.includes(f.id) ? keep.find(t => t.id === f.id) : f);
+    keep.filter(t => !out.includes(t)).forEach(t => out.push(t));
+    Object.assign(c, {cases:out, mods:modsFrom(o), summary:o.change_summary, suggest:(o.regression_suggestions || []).map(s => s.regression_id), genAi:p});
+    S.modal = null;
+    aiLog(p, `Regenerated test cases: ${out.length} in total`, `${plural(keep.length, 'edited or added case')} kept`, '', 'AI runs');
+    toast(`Regenerated. ${plural(keep.length, 'case')} you edited or added were kept.`); render();
+  },
+  validate(o, p){
+    const c = S.cycle;
+    c.aiRuns++;
+    c.ai = {consistency:o.result_consistency.map(x => ({id:x.case_id, why:x.reason || ''})), gaps:o.evidence_gaps.map(x => ({id:x.case_id, why:x.reason || ''})), explain:Object.fromEntries(o.failures_and_blocked.map(x => [x.case_id, x.explanation || ''])), summary:o.summary || '', p};
+    const first = c.status === 'Submitted';
+    if (first) setStatus('AI Reviewed');
+    const R = analyze(c);
+    aiLog(p, `${first ? 'Ran' : 'Re-ran'} validation: readiness ${R.score} / 100`, `${plural(R.obs, 'observation')}, ${plural(R.cnt.fail, 'failure')}, ${R.cnt.blocked} blocked`, first ? 'Submitted → AI Reviewed' : '');
+    S.modal = null;
+    const onReport = S.role === 'dev' && route()[2] === 'report';
+    toast(`AI validation finished: readiness ${R.score} / 100`, onReport ? '' : (S.role === 'dev' ? 'Open report' : 'Switch to Daniel'), 'report');
+    render();
+  },
+  bug(o, p){ aiLog(p, `Drafted a bug for ${S.cycle.cases[S.runIdx].id}`, '', '', 'Results'); S.modal = {type:'bug', draft:o, p}; renderOverlay(); },
+  dups(o, p){
+    S.regression.forEach(r => { r.dup = ''; r.dupWhy = ''; });
+    o.pairs.forEach(pr => { const a = S.regression.find(r => r.id === pr.a), b = S.regression.find(r => r.id === pr.b); if (a && b) { a.dup = b.id; b.dup = a.id; a.dupWhy = b.dupWhy = pr.reason || ''; } });
+    S.dupRun = p; S.modal = null;
+    toast(`${plural(o.pairs.length, 'likely duplicate pair')} found.`); render();
+  }
+};
+
+/* ---------- actions ---------- */
+function setRole(r, h){ S.role = r; toast(`Now viewing as ${USERS[r].name} (${USERS[r].role})`); go(h || home()); }
+function runSteps(msg, steps, ms, done){
+  S.busy = {msg, steps, i:0}; renderOverlay();
+  const tick = () => { S.busy.i++; if (S.busy.i > steps.length) { S.busy = null; done(); return; } renderOverlay(); setTimeout(tick, ms); };
+  setTimeout(tick, ms);
+}
+function ensureInTesting(){
+  const c = S.cycle;
+  if (c.status === 'Assigned') { setStatus('In Testing'); log('tester', 'Started testing', '', 'Assigned → In Testing', 'p-ac', 'Workflow'); }
+  else if (c.status === 'Changes Requested') { setStatus('In Testing'); log('tester', 'Resumed testing after changes were requested', '', 'Changes Requested → In Testing', 'p-ac', 'Workflow'); }
+}
+const toastActs = {
+  report(){ if (S.role !== 'dev') setRole('dev', 'cycle/482/report'); else go('cycle/482/report'); },
+  undo(){ if (!S.lastDel) return; S.cycle.cases.splice(S.lastDel.i, 0, S.lastDel.t); log('dev', `Restored ${S.lastDel.t.id}`, '', '', '', 'Test cases'); S.lastDel = null; render(); }
+};
+const A = {
+  noop(){},
+  signin(){ const v = document.getElementById('demoRole').value; S.busy = {msg:'Signing in with Microsoft Entra ID…'}; renderOverlay(); setTimeout(() => { S.signedIn = true; S.role = v; S.busy = null; go(home()); }, 900); },
+  nav(d){ go(d.h); },
+  theme(){ S.theme = S.theme === 'dark' ? 'light' : 'dark'; render(); },
+  'ado-link'(){ toast('In the real app this opens the item in Azure DevOps.'); },
+  'sample-row'(){ toast('Sample row. In this prototype only PR #482 on Claims Portal is wired up.'); },
+  'run-regression'(){ toast('Regression run queued. In the real app this creates a cycle from the selected regression cases.'); },
+  'settings-save'(){ toast('Settings saved.'); },
+  resync(){ toast('Synced with Azure DevOps. No new pull requests.'); },
+  'app-filter'(d){ S.appFilter = d.v; render(); },
+  'add-app'(){ S.modal = {type:'addapp', org:'contoso-health', proj:'Claims', repo:null, name:'', branch:'main'}; renderOverlay(); },
+  'aa-repo'(d){ S.modal.repo = d.r; S.modal.branch = d.b; S.modal.name = d.r.split('-').map(w => w[0].toUpperCase() + w.slice(1)).join(' '); renderOverlay(); },
+  'aa-link'(){ const m = S.modal; const name = (m.name || m.repo).trim(); S.apps.push({id:m.repo, name, ini:name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(), path:`${m.org} / ${m.proj} / ${m.repo}`, open:0, reg:0, last:'Not yet', rate:null, tag:['Just linked','p-ac']}); S.addedApp = true; S.modal = null; toast(`${name} linked. Verity subscribed to its pull request events.`); render(); },
+  'close-modal'(){ S.modal = null; renderOverlay(); },
+  'bg-close'(d, el, e){ if (e.target === el) { S.modal = null; renderOverlay(); } },
+  'pr-expand'(d){ S.openPR[d.n] = !S.openPR[d.n]; render(); },
+  generate(){ aiStart('gen'); },
+  'ai-azure'(d){ aiAzure(d.task); },
+  'ai-claude'(d){ aiClaude(d.task); },
+  'ai-dups'(){ aiStart('dups'); },
+  'bug-manual'(){ S.modal = {type:'bug', draft:null}; renderOverlay(); },
+  'cl-download'(){ const m = S.modal; download(`${m.runId}-prompt.md`, buildPrompt(m.task, m.runId), 'text/markdown'); m.downloaded = true; log(S.role, `Downloaded the prompt package for ${AI_TASKS[m.task].name.toLowerCase()}`, 'Run ' + m.runId, '', '', 'AI runs'); renderOverlay(); toast('Prompt package downloaded. Attach it in a new Claude chat.'); },
+  'cl-copy'(){ const m = S.modal; const txt = buildPrompt(m.task, m.runId); try { navigator.clipboard.writeText(txt).then(() => toast('Prompt copied. Paste it into a new Claude chat.'), () => toast('The browser blocked copying. Use Download instead.')); } catch (e) { toast('The browser blocked copying. Use Download instead.'); } log(S.role, `Copied the prompt for ${AI_TASKS[m.task].name.toLowerCase()}`, 'Run ' + m.runId, '', '', 'AI runs'); },
+  'cl-sample'(){ const m = S.modal; m.text = 'Here is the result.\n\n```json\n' + JSON.stringify(sampleResp(m.task, m.runId), null, 2) + '\n```'; m.errors = null; renderOverlay(); },
+  'cl-import'(){ const m = S.modal; const r = parseResp(m.task, m.runId, m.text || ''); if (r.errors.length) { m.errors = r.errors; renderOverlay(); return; } AI_APPLY[m.task](r.o, {prov:'claude', runId:m.runId, by:S.role, at:now()}); },
+  audit(){ if (!S.cycle) { toast('The audit trail starts when the cycle is created.'); return; } S.drawer = true; S.sawAudit = true; renderOverlay(); },
+  'close-drawer'(){ S.drawer = false; render(); },
+  'audit-filter'(d){ S.auditFilter = d.v; renderOverlay(); },
+  'audit-export'(){ download('pr-482-audit.csv', 'time,who,action,detail,tag\n' + S.audit.map(e => [e.day + ' ' + e.time, USERS[e.who].name, e.what, e.detail, e.tag].map(csv).join(',')).join('\n')); },
+  'toggle-sugg'(){ S.suggestionsOn = !S.suggestionsOn; render(); },
+  'add-sugg'(d){ addSugg(d.id); render(); },
+  'add-all-sugg'(){ SUGG.forEach(s => { if (!S.suggAdded[s.reg]) addSugg(s.reg); }); render(); },
+  regen(){ aiStart('regen'); },
+  'case-new'(){ S.modal = {type:'case', id:null}; renderOverlay(); },
+  'case-edit'(d){ S.modal = {type:'case', id:d.id}; renderOverlay(); },
+  'case-save'(){
+    const v = id => document.getElementById(id).value.trim();
+    const data = {title:v('c-title') || 'Untitled test case', type:v('c-type'), pri:v('c-pri'), mod:v('c-mod'), file:v('c-file') || MODS.find(m => m.id === v('c-mod')).name, pre:v('c-pre'), steps:v('c-steps').split('\n').map(s => s.trim()).filter(Boolean), exp:v('c-exp')};
+    if (!data.steps.length) data.steps = ['Describe the first step'];
+    if (S.modal.id) { const t = S.cycle.cases.find(x => x.id === S.modal.id); Object.assign(t, data, {edited:true}); log('dev', `Edited ${t.id}`, t.title, '', '', 'Test cases'); toast(`${t.id} updated.`); }
+    else { const id = nextCaseId(); S.cycle.cases.push(Object.assign({id, src:'manual', edited:false, promoted:false, r:newResult()}, data)); log('dev', `Added ${id} manually`, data.title, '', '', 'Test cases'); toast(`${id} added.`); }
+    S.modal = null; render();
+  },
+  'case-dup'(d){ const cs = S.cycle.cases, i = cs.findIndex(x => x.id === d.id); const t = cs[i]; const id = nextCaseId(); cs.splice(i + 1, 0, Object.assign({}, t, {id, title:t.title + ' (copy)', steps:t.steps.slice(), edited:true, promoted:false, r:newResult()})); log('dev', `Duplicated ${t.id} as ${id}`, '', '', '', 'Test cases'); render(); },
+  'case-del'(d){ const cs = S.cycle.cases, i = cs.findIndex(x => x.id === d.id); S.lastDel = {t:cs[i], i}; cs.splice(i, 1); log('dev', `Deleted ${d.id}`, S.lastDel.t.title, '', '', 'Test cases'); toast(`${d.id} deleted.`, 'Undo', 'undo'); render(); },
+  'case-promote'(d){ const t = S.cycle.cases.find(x => x.id === d.id); const rid = 'REG-' + S.regNext++; t.promoted = true; S.regTotal++; S.regression.unshift({id:rid, title:t.title, mod:MODREG[t.mod], pri:t.pri, last:'Not run', res:'Not run', hist:'NNNNNNNNNN', src:'PR #482', dup:'', tags:[]}); log('dev', `Promoted ${t.id} to the regression suite as ${rid}`, t.title, '', '', 'Test cases'); toast(`${t.id} added to the regression suite as ${rid}.`); render(); },
+  assign(){
+    const tester = document.getElementById('assignTester').value, due = document.getElementById('assignDue').value;
+    const dl = due ? new Date(due + 'T12:00:00').toLocaleDateString([], {month:'short', day:'numeric'}) : 'no date';
+    Object.assign(S.cycle, {tester, due, dueLabel:dl}); setStatus('Assigned');
+    log('dev', `Assigned ${plural(S.cycle.cases.length, 'case')} to ${tester}, due ${dl}`, '', 'Tests Generated → Assigned', 'p-ac', 'Workflow');
+    toast(`${tester} was notified by email and in Teams.`); render();
+  },
+  'switch-role'(d){ setRole(d.r, d.h); },
+  'queue-tab'(d){ S.queueTab = d.v; render(); },
+  'run-pick'(d){ S.runIdx = +d.i; render(); },
+  'run-prev'(){ S.runIdx = Math.max(0, S.runIdx - 1); render(); },
+  'run-next'(){ S.runIdx = Math.min(S.cycle.cases.length - 1, S.runIdx + 1); render(); },
+  'open-case'(d){ S.runIdx = S.cycle.cases.findIndex(x => x.id === d.id); go('cycle/482/run'); },
+  'set-status'(d){
+    const t = S.cycle.cases[S.runIdx]; const was = t.r.status;
+    t.r.status = was === d.s ? '' : d.s;
+    ensureInTesting();
+    if (t.r.status) { const cls = {pass:'p-pass', fail:'p-fail', blocked:'p-blk', na:'p-nr'}[t.r.status]; log('tester', `Recorded ${t.id}${t.r.ev.length ? ' · ' + plural(t.r.ev.length, 'file') + ' attached' : ''}${t.r.bug ? ' · linked ' + t.r.bug : ''}`, t.r.actual, RS[t.r.status][0], cls, 'Results'); }
+    render();
+  },
+  'fill-sample'(){
+    let n = 0;
+    S.cycle.cases.forEach(t => { if (t.r.status) return; const s = SAMPLE[t.id] || ['pass', 'Matches the expected result.', [t.id.toLowerCase() + '-result.png']]; t.r.status = s[0]; t.r.actual = s[1]; t.r.ev = s[2].slice(); t.r.bug = s[3] ? 'AB#' + S.bugSeq++ : ''; t.r.chk = t.steps.map(() => true); n++; });
+    ensureInTesting();
+    log('tester', `Recorded ${plural(n, 'result')}`, 'Filled with sample results in the prototype', '', '', 'Results');
+    toast(`${plural(n, 'case')} filled. Review any case, then Submit for Review.`); render();
+  },
+  'create-bug'(){ aiStart('bug'); },
+  'bug-save'(){ const t = S.cycle.cases[S.runIdx]; const id = 'AB#' + S.bugSeq++; t.r.bug = id; log('tester', `Created bug ${id} for ${t.id} in Azure DevOps`, document.getElementById('b-title').value, '', '', 'Results'); S.modal = null; toast(`Bug ${id} created in Azure DevOps and linked to PR #482.`); render(); },
+  'ev-del'(d){ S.cycle.cases[S.runIdx].r.ev.splice(+d.k, 1); render(); },
+  submit(){
+    setStatus('Submitted'); log('tester', 'Submitted for review', '', 'In Testing → Submitted', 'p-ac', 'Workflow');
+    if (S.aiMode.validate === 'azure') {
+      toast('Submitted. Verity is running AI validation in Azure OpenAI.'); render();
+      setTimeout(() => { if (S.cycle.status !== 'Submitted') return; const runId = newRunId('validate'); AI_APPLY.validate(sampleResp('validate', runId), {prov:'azure', runId, by:'ai', at:now()}); }, 2400);
+    } else { toast('Submitted. Daniel Okafor will run the AI validation.', 'Switch to Daniel', 'report'); render(); }
+  },
+  'open-approve'(){ S.modal = {type:'approve', ok:false}; renderOverlay(); },
+  'approve-save'(){
+    const note = document.getElementById('ap-note').value.trim();
+    Object.assign(S.cycle, {approvedNote:note, approvedAt:now()}); setStatus('Approved for UAT');
+    log('dev', 'Approved for client UAT', note, 'AI Reviewed → Approved for UAT', 'p-pass', 'Approvals');
+    log('sys', 'Set the verity/uat-ready check to succeeded on PR #482 in Azure DevOps', '', '', '', 'Approvals');
+    S.modal = null; toast('Approved for client UAT. The client success team was notified.'); render();
+  },
+  'open-changes'(){ S.modal = {type:'changes'}; renderOverlay(); },
+  'changes-save'(){
+    const cm = document.getElementById('ch-c').value.trim() || 'Please review the AI findings.';
+    S.cycle.changeComment = cm; setStatus('Changes Requested');
+    log('dev', 'Requested changes', cm, 'AI Reviewed → Changes Requested', 'p-blk', 'Approvals');
+    S.modal = null; toast(`Returned to ${S.cycle.tester}.`); render();
+  },
+  rerun(){ aiStart('validate'); },
+  'reg-tag'(){ S.modal = {type:'tag'}; renderOverlay(); },
+  'tag-save'(){ const v = document.getElementById('tag-v').value.trim().replace(/^#/, ''); if (v) S.regression.forEach(r => { if (S.regSel[r.id] && !r.tags.includes(v)) r.tags.push(v); }); S.modal = null; toast(`Tagged with #${v}.`); render(); },
+  'reg-archive'(){ const ids = Object.keys(S.regSel).filter(k => S.regSel[k]); S.regression = S.regression.filter(r => !ids.includes(r.id)); S.regTotal -= ids.length; S.regSel = {}; toast(`${plural(ids.length, 'case')} archived.`); render(); },
+  'reg-export'(){ const sel = S.regression.filter(r => S.regSel[r.id]); const rows = sel.length ? sel : regRows(); download('claims-portal-regression.csv', 'id,title,module,priority,last_run,last_result,source\n' + rows.map(r => [r.id, r.title, r.mod, r.pri, r.last, r.res, r.src].map(csv).join(',')).join('\n')); toast(`Exported ${plural(rows.length, 'case')} to CSV.`); },
+  'reg-clear'(){ S.regSel = {}; render(); },
+  merge(d){ S.modal = {type:'merge', id:d.id}; renderOverlay(); },
+  'merge-save'(){ const m = S.modal; S.regression = S.regression.filter(r => r.id !== m.drop); S.regression.forEach(r => { if (r.dup === m.drop) r.dup = ''; }); S.regTotal--; S.modal = null; toast(`Merged. ${m.drop} archived, ${m.keep} kept.`); render(); },
+  'guide-toggle'(){ S.guideOpen = !S.guideOpen; renderOverlay(); },
+  'guide-go'(d){ if (d.r && d.r !== S.role) S.role = d.r; go(d.h); if (d.audit) setTimeout(() => A.audit(), 200); },
+  reset(){ location.hash = ''; location.reload(); },
+  'toast-act'(d){ if (toastActs[d.k]) toastActs[d.k](); }
+};
+function addSugg(reg){ const s = SUGG.find(x => x.reg === reg); const id = nextCaseId(); S.cycle.cases.push({id, title:s.title, type:'Regression', pri:s.pri, file:MODS.find(m => m.id === s.mod).name, src:'reg', mod:s.mod, pre:s.pre + ' Linked to ' + s.reg + '.', steps:s.steps.slice(), exp:s.exp, edited:false, promoted:true, r:newResult()}); S.suggAdded[reg] = id; log('dev', `Included regression case ${reg} as ${id}`, s.title, '', '', 'Test cases'); }
+function csv(v){ v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+function download(name, text, type){ try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], {type:type || 'text/csv'})); a.download = name; document.body.appendChild(a); a.click(); a.remove(); } catch (e) { toast('Download is not available in this preview.'); } }
+
+const CH = {
+  role(el){ setRole(el.value); },
+  pr(el){ const p = PRS.find(x => x.num === +el.dataset.n); const all = p.commits.every(c => S.sel[c[0]]); p.commits.forEach(c => { S.sel[c[0]] = !all; }); render(); },
+  commit(el){ S.sel[el.dataset.h] = el.checked; render(); },
+  step(el){ const t = S.cycle.cases[S.runIdx]; t.r.chk[+el.dataset.j] = el.checked; render(); },
+  evidence(el){ const t = S.cycle.cases[S.runIdx]; Array.from(el.files || []).forEach(f => t.r.ev.push(f.name)); render(); },
+  'aa-org'(el){ S.modal.org = el.value; S.modal.proj = Object.keys(ADO[el.value])[0]; S.modal.repo = null; S.modal.name = ''; renderOverlay(); },
+  'aa-proj'(el){ S.modal.proj = el.value; S.modal.repo = null; S.modal.name = ''; renderOverlay(); },
+  'ap-ok'(el){ S.modal.ok = el.checked; renderOverlay(); },
+  regmod(el){ S.regMod = el.value; render(); },
+  regres(el){ S.regRes = el.value; render(); },
+  'reg-sel'(el){ S.regSel[el.dataset.id] = el.checked; render(); },
+  'reg-all'(el){ regRows().forEach(r => { S.regSel[r.id] = el.checked; }); render(); },
+  'ai-mode'(el){ S.aiMode[el.dataset.task] = el.value; toast(`${AI_TASKS[el.dataset.task].name}: ${MODE_LABEL[el.value]}.`); },
+  'cl-file'(el){ const f = el.files && el.files[0]; if (!f) return; const rd = new FileReader(); rd.onload = () => { S.modal.text = String(rd.result); S.modal.errors = null; renderOverlay(); }; rd.readAsText(f); }
+};
+const IN = {
+  actual(el){ S.cycle.cases[S.runIdx].r.actual = el.value; },
+  notes(el){ S.cycle.cases[S.runIdx].r.notes = el.value; },
+  bug(el){ S.cycle.cases[S.runIdx].r.bug = el.value; },
+  'aa-name'(el){ S.modal.name = el.value; },
+  'cl-text'(el){ S.modal.text = el.value; },
+  regq(el){ S.regQ = el.value; render(); }
+};
+document.addEventListener('click', e => { const el = e.target.closest('[data-act]'); if (!el) return; if (el.disabled) return; const fn = A[el.dataset.act]; if (fn) { if (el.tagName === 'A' || el.tagName === 'TR' || el.tagName === 'BUTTON') e.preventDefault(); fn(el.dataset, el, e); } });
+document.addEventListener('change', e => { const el = e.target.closest('[data-change]'); if (el && CH[el.dataset.change]) CH[el.dataset.change](el, e); });
+document.addEventListener('input', e => { const el = e.target.closest('[data-input]'); if (el && IN[el.dataset.input]) IN[el.dataset.input](el, e); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (S.modal) { S.modal = null; renderOverlay(); } else if (S.drawer) { S.drawer = false; renderOverlay(); } } });
+window.addEventListener('hashchange', () => { S.drawer = false; render(); window.scrollTo(0, 0); });
+render();
+</script>
+</body>
+</html>
